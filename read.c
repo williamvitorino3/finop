@@ -57,15 +57,21 @@ void readConta(FILE *file, struct Contas *contas)
   }
 }
 /*
-void readOperacao(FILE *file, struct Operacao *operacao)
+void readOperacoes(FILE *file, struct Operacao *lista)
 {
+  struct Operacao *operacao = malloc(sizeof(struct Operacao));
   char linha[10001];
   do
   {
+    if(feof(file))
+    {
+      file = fopen("arquivo.txt", "r");
+    }
     fscanf(file, "%s\n", linha);
   }while(strcmp(linha, "*operacao*"));
   while (fscanf(file, "%d, %[^;];", &operacao->id, operacao->nome) == 2)
   {
+    insert_operacao(lista, operacao);
     printf("%d, %s;\n", operacao->id, operacao->nome);
   }
 }
@@ -95,8 +101,12 @@ void readTransacao(FILE *file, struct Transacoes *lista)
   }
 }
 
-void readTransacoes_cartao_credito(FILE *file, struct Transacao_cartao_credito *divida)
+void readTransacoes_cartao_credito(FILE *file, struct Transacoes_cartao_credito *lista)
 {
+  /**
+    * Preenche a lista de tranzações de cartão de crédito de acordo com os dados do arquivo.
+  **/
+  struct Transacao_cartao_credito *divida = malloc(sizeof(struct Transacao_cartao_credito));
   char linha[10001];
   do
   {
@@ -108,6 +118,7 @@ void readTransacoes_cartao_credito(FILE *file, struct Transacao_cartao_credito *
   }while(strcmp(linha, "*transacoes_cartao_credito*"));
   while (fscanf(file, "%[^,], %d, %[^,], %d, %lf;\n", divida->data_compra, &divida->id_conta, divida->descricao, &divida->qtde_parcelas, &divida->valor) == 5)
   {
-    printf("%s, %d, %s, %d, %lf;\n", divida->data_compra, divida->id_conta, divida->descricao, divida->qtde_parcelas, divida->valor);
+    insert_Transacoes_cartao_credito(lista, divida);
+    //printf("%s, %d, %s, %d, %lf;\n", divida->data_compra, divida->id_conta, divida->descricao, divida->qtde_parcelas, divida->valor);
   }
 }

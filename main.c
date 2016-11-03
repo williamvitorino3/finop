@@ -123,12 +123,12 @@ void listarSaldoCLientes(struct Clientes *clientes, struct Contas *contas, struc
   /**
     * Representa a listagem de todos os clientes com o saldo de cada cliente.
   **/
-  printf("|-------------------------------|-------------------------------|\n");
+  printf("|-------------------------------|-----------------------|\n");
   for (struct Clientes *aux = clientes->next; aux != NULL; aux = aux->next)
   {
-    printf("|\t%s\t\t|\tR$ %.3lf\t\t|\n", aux->cliente->nome, getSaldoTotal(contas, transacoes, aux->cliente->id));
+    printf("|\t%s\t\t|\tR$ %.3lf\t|\n", aux->cliente->nome, getSaldoTotal(contas, transacoes, aux->cliente->id));
   }
-  printf("|-------------------------------|-------------------------------|\n");
+  printf("|-------------------------------|-----------------------|\n");
 }
 
 int main()
@@ -150,6 +150,7 @@ int main()
   readTransacao(file, transacoes);
   readConta(file, contas);
   readCliente(file, clientes);
+  readTransacoes_cartao_credito(file, tranzacoes_cartao);
 
   /* Laço proncipal do projeto. */
   while (1)
