@@ -84,7 +84,7 @@ double getSaldoTotal(struct Contas *cabeca, struct Transacoes *transacoes, int i
   return saldo;
 }
 
-void print_saldo(struct Contas *cabeca, struct Transacoes *transacoes, struct Clientes *clientes, int id_cliente)
+void print_saldo(struct Contas *cabeca, struct Transacoes *transacoes, struct Clientes *clientes, struct Cliente *cliente)
 {
   /**
     * Representa a listagem do saldo atual do cliente em cada conta.
@@ -92,12 +92,12 @@ void print_saldo(struct Contas *cabeca, struct Transacoes *transacoes, struct Cl
   struct Contas *aux = cabeca->next;
   double saldo = 0;
   printf("|-------------------------------------------------------|\n");
-  printf("\t%s\t\t\tR$ %.2lf\t\t\n", getCliente(clientes, id_cliente)->nome, getSaldoTotal(cabeca, transacoes, id_cliente));
+  printf("\t%s\t\t\tR$ %.2lf \t\t\n", cliente->nome, getSaldoTotal(cabeca, transacoes, cliente->id));
   printf("|-------------------------------------------------------|\n");
 
   while (aux != NULL)
   {
-    if (aux->conta->id_cliente == id_cliente)
+    if (aux->conta->id_cliente == cliente->id)
     {
       print_conta(aux->conta);
       printf("\tR$ %.2lf\t|\n", getSaldo(transacoes, aux->conta->id));
@@ -107,15 +107,17 @@ void print_saldo(struct Contas *cabeca, struct Transacoes *transacoes, struct Cl
   printf("|-------------------------------------------------------|\n");
 }
 
-int inputCliente(struct Clientes *clientes)
+struct Cliente *inputCliente(struct Clientes *clientes)
 {
   /**
     * Recebe do usuário o numero de um ciente.
   **/
-  int id;
+  char cpf[15];
+  setbuf(stdin, NULL);
   printf("Digite o numero do cliente:\n>>> ");
-  scanf("%d", &id);
-  return (find_cliente(clientes, id) ? id : inputCliente(clientes));
+  scanf("%s", cpf);
+  setbuf(stdin, NULL);
+  return (find_cliente(clientes, cpf) ? getCliente(clientes, cpf) : inputCliente(clientes));
 }
 
 void listarSaldoCLientes(struct Clientes *clientes, struct Contas *contas, struct Transacoes *transacoes)
@@ -123,12 +125,12 @@ void listarSaldoCLientes(struct Clientes *clientes, struct Contas *contas, struc
   /**
     * Representa a listagem de todos os clientes com o saldo de cada cliente.
   **/
-  printf("|-------------------------------|-----------------------|\n");
+  printf("|-------------------------------|-------------------------------|-----------------------|\n");
   for (struct Clientes *aux = clientes->next; aux != NULL; aux = aux->next)
   {
-    printf("|\t%s\t\t|\tR$ %.3lf\t|\n", aux->cliente->nome, getSaldoTotal(contas, transacoes, aux->cliente->id));
+    printf("|\t%s\t\t|\t%s\t\t|\tR$ %.2lf \t|\n", aux->cliente->nome, aux->cliente->cpf, getSaldoTotal(contas, transacoes, aux->cliente->id));
   }
-  printf("|-------------------------------|-----------------------|\n");
+  printf("|-------------------------------|-------------------------------|-----------------------|\n");
 }
 
 int main()
@@ -152,7 +154,8 @@ int main()
   readCliente(file, clientes);
   readTransacoes_cartao_credito(file, tranzacoes_cartao);
 
-  /* Laço proncipal do projeto. */
+
+  /* Laço proncipal do projeto.*/
   while (1)
   {
     switch (getOpcao()) {
@@ -171,5 +174,6 @@ int main()
         return 0;
     }
   }
+
   return 0;
 }

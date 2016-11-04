@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 struct Transacao
 {
   int id_operacao, id_conta_origem, id_conta_destino;
@@ -40,6 +42,7 @@ void append_transacao(struct Transacoes *cabeca, struct Transacao *e)
 
   struct Transacoes *ultimo = malloc(sizeof(struct Transacoes));
   ultimo->transacao = e;
+  ultimo->next = NULL;
 
   aux->next = ultimo;
 }
@@ -49,13 +52,22 @@ double getSaldo(struct Transacoes *cabeca, int id_conta)
   double saldo = 0.0;
   for(struct Transacoes *aux = cabeca->next; aux != NULL; aux = aux->next)
   {
-    saldo += ( (aux->transacao->id_conta_origem == id_conta) ? -aux->transacao->valor :
-             ( (aux->transacao->id_conta_destino) ? aux->transacao->valor : 0 ) );
+    if(aux->transacao->id_conta_origem == id_conta)
+    {
+      saldo -= aux->transacao->valor;
+    }else if(aux->transacao->id_conta_destino == id_conta)
+    {
+      saldo += aux->transacao->valor;
+    }
+    /*
+    saldo += ( (aux->transacao->id_conta_origem == id_conta) ? (aux->transacao->valor*(-1)) :
+    ( (aux->transacao->id_conta_destino) ? aux->transacao->valor : 0 ) );
+    */
   }
   return saldo;
 }
 
 void print_transacao(struct Transacoes *cabeca)
 {
-  for(struct Transacoes *aux = cabeca->next; aux != NULL; printf("%d\n", aux->transacao->id_operacao), aux = aux->next);
+  for(struct Transacoes *aux = cabeca->next; aux != NULL; printf("%d <--> %d\tSaldo: %lf\n", aux->transacao->id_conta_origem, aux->transacao->id_conta_destino,aux->transacao->valor), aux = aux->next);
 }

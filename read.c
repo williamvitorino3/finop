@@ -96,8 +96,9 @@ void readTransacao(FILE *file, struct Transacoes *lista)
   /// Lê as transações e as adiciona na lista.
   while (fscanf(file, "%[^,], %d, %d, %d, %lf;\n", transacao->data, &transacao->id_operacao, &transacao->id_conta_origem, &transacao->id_conta_destino, &transacao->valor) == 5)
   {
-    //printf("%s, %d, %d, %d, %lf;\n", transacao->data, transacao->id_operacao, transacao->id_conta_origem, transacao->id_conta_destino, transacao->valor);
+    //printf("%s, %d, %d, %d, %.2lf;\n", transacao->data, transacao->id_operacao, transacao->id_conta_origem, transacao->id_conta_destino, transacao->valor);
     insert_transacao(lista, transacao);
+    transacao = malloc(sizeof(struct Transacao));
   }
 }
 

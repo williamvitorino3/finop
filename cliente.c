@@ -61,20 +61,28 @@ void append_sorted_cliente(struct Clientes *cabeca, struct Cliente *e)
   aux->next = Clientesvo;
 }
 
-int find_cliente(struct Clientes *cabeca, int id)
+int find_cliente(struct Clientes *cabeca, char cpf[])
 {
-  struct Clientes *aux;
-  for(aux = cabeca->next; aux != NULL; aux = aux->next)
-    if(aux->cliente->id == id)
+  for(struct Clientes *aux = cabeca->next; aux != NULL; aux = aux->next)
+    if(!strcmp(aux->cliente->cpf, cpf))
+    {
+      printf("Existe...\n");
       return 1;
+    }
+  printf("Não existe...\n");
   return 0;
 }
 
-struct Cliente *getCliente(struct Clientes *lista, int id)
+struct Cliente *getCliente(struct Clientes *lista, char *cpf)
 {
+  printf("CPF: %s\n", cpf);
   for(struct Clientes *aux = lista->next; aux != NULL; aux = aux->next)
-    if (aux->cliente->id == id)
+  {
+    if(!strcmp(aux->cliente->cpf, cpf))
       return aux->cliente;
+    }
+  printf("Não achou...\n");
+  return malloc(sizeof(struct Cliente));
 }
 
 void print_cliente(struct Clientes *cabeca)
