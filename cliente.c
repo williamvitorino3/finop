@@ -66,10 +66,9 @@ int find_cliente(struct Clientes *cabeca, char cpf[])
   for(struct Clientes *aux = cabeca->next; aux != NULL; aux = aux->next)
     if(!strcmp(aux->cliente->cpf, cpf))
     {
-      printf("Existe...\n");
       return 1;
     }
-  printf("Não existe...\n");
+  printf("Conta Inexistente...\n");
   return 0;
 }
 
