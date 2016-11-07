@@ -47,6 +47,27 @@ void append_transacao(struct Transacoes *cabeca, struct Transacao *e)
   aux->next = ultimo;
 }
 
+void append_sorted_transacao(struct Transacoes *cabeca, struct Transacao *e)
+{
+
+  /*
+   * Inserção Transacoes fim.
+   */
+
+  struct Transacoes *aux = cabeca;
+
+  while (aux->next != NULL)
+  {
+    aux = aux->next;
+  }
+
+  struct Transacoes *ultimo = malloc(sizeof(struct Transacoes));
+  ultimo->transacao = e;
+  ultimo->next = NULL;
+
+  aux->next = ultimo;
+}
+
 double getSaldo(struct Transacoes *cabeca, int id_conta)
 {
   double saldo = 0.0;
@@ -67,7 +88,15 @@ double getSaldo(struct Transacoes *cabeca, int id_conta)
   return saldo;
 }
 
-void print_transacao(struct Transacoes *cabeca)
+void print_transacao(struct Transacao *transacao)
 {
-  for(struct Transacoes *aux = cabeca->next; aux != NULL; printf("%d <--> %d\tSaldo: %lf\n", aux->transacao->id_conta_origem, aux->transacao->id_conta_destino,aux->transacao->valor), aux = aux->next);
+    printf("|\t%s\t|\t%s\t|\t %.2lf\t\t|\n", transacao->data, (transacao->id_operacao == 1 ? "saque\t" : (transacao->id_operacao == 2 ? "depósito" : "tranferência")), transacao->valor);
+}
+
+void print_transacoes(struct Transacoes *cabeca)
+{
+  for(struct Transacoes *aux = cabeca->next; aux != NULL; aux = aux->next)
+  {
+    print_transacao(aux->transacao);
+  }
 }

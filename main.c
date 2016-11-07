@@ -12,9 +12,9 @@ int getOpcao()
     * e retorna;
   **/
   int op;
-  printf("Escolha uma opção:\n1 - Listar clientes por estado.\n2 - Saldo atual do cliente.\n3 - Listar saldo dos cliente\n0 - Sair\n>>> ");
+  printf("Escolha uma opção:\n1 - Listar clientes por estado.\n2 - Saldo atual do cliente.\n3 - Listar saldo dos cliente\n4 - Extrato mês atual\n0 - Sair\n>>> ");
   scanf("%d", &op);
-  return (op >= 0 && op<= 3 ? op : getOpcao());
+  return (op >= 0 && op<= 4 ? op : getOpcao());
 }
 
 int qtdContas(struct Contas *cabeca, int id_cliente)
@@ -84,7 +84,7 @@ double getSaldoTotal(struct Contas *cabeca, struct Transacoes *transacoes, int i
   return saldo;
 }
 
-void print_saldo(struct Contas *cabeca, struct Transacoes *transacoes, struct Clientes *clientes, struct Cliente *cliente)
+void print_saldo(struct Contas *cabeca, struct Transacoes *transacoes, struct Cliente *cliente)
 {
   /**
     * Representa a listagem do saldo atual do cliente em cada conta.
@@ -114,7 +114,7 @@ struct Cliente *inputCliente(struct Clientes *clientes)
   **/
   char cpf[15];
   setbuf(stdin, NULL);
-  printf("Digite o numero do cliente:\n>>> ");
+  printf("Digite o CPF do cliente:\n>>> ");
   scanf("%s", cpf);
   setbuf(stdin, NULL);
   return (find_cliente(clientes, cpf) ? getCliente(clientes, cpf) : inputCliente(clientes));
@@ -133,6 +133,46 @@ void listarSaldoCLientes(struct Clientes *clientes, struct Contas *contas, struc
   printf("|-------------------------------|-------------------------------|-----------------------|\n");
 }
 
+int inputConta(struct Contas *contas)
+{
+  /**
+    * Recebe do usuário o numero de um ciente.
+  **/
+  int numero_conta;
+  setbuf(stdin, NULL);
+  printf("Digite o número da conta:\n>>> ");
+  scanf("%d", &numero_conta);
+  setbuf(stdin, NULL);
+  return (find_conta(contas, numero_conta) ? numero_conta : inputConta(contas));
+}
+
+void print_extrato_atual(struct Cliente *cliente, struct Contas *contas, int numero_conta, struct Transacoes *transacoes, struct Transacoes_cartao_credito *tranzacoes_cartao)
+{
+  /**
+    * Representa a listagem das transações realizadas pelo cliente no mês atual.
+  **/
+  for(struct Contas *aux = contas->next; aux != NULL; aux = aux->next)    // Percorre a lista de contas.
+  {
+    if(aux->conta->numero_conta == numero_conta && cliente->id == aux->conta->id_cliente)    // Verifica o numero da conta.
+    {
+      for(struct Transacoes *lista = transacoes->next; lista != NULL; lista = lista->next)    // Percorre a lista de transações.
+      {
+        if (lista->transacao->id_conta_origem == aux->conta->id || lista->transacao->id_conta_destino == aux->conta->id)  // Verifica se o id da conta bate com o id de origem ou de destino da transacao.
+        {
+          print_transacao(lista->transacao);
+        }
+      }/* Transações de cartão de crédito.
+      for (struct Transacoes_cartao_credito *cartao = tranzacoes_cartao->next; cartao != NULL; cartao = cartao->next)
+      {
+        if (cartao->transacao_cartao_credito->id_conta == aux->conta->id)
+        {
+          print_Transacao_cartao_credito(cartao->transacao_cartao_credito);
+        }
+      }*/
+    }
+  }
+}
+
 int main()
 {
   /**
@@ -148,6 +188,7 @@ int main()
   struct Transacoes_cartao_credito *tranzacoes_cartao = malloc(sizeof(struct Transacoes_cartao_credito));
 
   printf("Lendo arquivo, por favor aguarde...\n");
+
   /* Lê as estruturas do arquivo. */
   readTransacao(file, transacoes);
   readConta(file, contas);
@@ -158,15 +199,19 @@ int main()
   /* Laço proncipal do projeto.*/
   while (1)
   {
-    switch (getOpcao()) {
+    switch (getOpcao())
+    {
       case 1:
         getEstado(clientes, contas);
         break;
       case 2:
-        print_saldo(contas, transacoes, clientes, inputCliente(clientes));
+        print_saldo(contas, transacoes, inputCliente(clientes));
         break;
       case 3:
         listarSaldoCLientes(clientes, contas, transacoes);
+        break;
+      case 4:
+        print_extrato_atual(inputCliente(clientes), contas, inputConta(contas), transacoes, tranzacoes_cartao);
         break;
       default:
         fclose(file);

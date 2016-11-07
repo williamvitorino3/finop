@@ -68,19 +68,17 @@ int find_cliente(struct Clientes *cabeca, char cpf[])
     {
       return 1;
     }
-  printf("Conta Inexistente...\n");
+  printf("CPF Inexistente.\n");
   return 0;
 }
 
 struct Cliente *getCliente(struct Clientes *lista, char *cpf)
 {
-  printf("CPF: %s\n", cpf);
   for(struct Clientes *aux = lista->next; aux != NULL; aux = aux->next)
   {
     if(!strcmp(aux->cliente->cpf, cpf))
       return aux->cliente;
     }
-  printf("Não achou...\n");
   return malloc(sizeof(struct Cliente));
 }
 

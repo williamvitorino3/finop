@@ -121,5 +121,6 @@ void readTransacoes_cartao_credito(FILE *file, struct Transacoes_cartao_credito 
   {
     insert_Transacoes_cartao_credito(lista, divida);
     //printf("%s, %d, %s, %d, %lf;\n", divida->data_compra, divida->id_conta, divida->descricao, divida->qtde_parcelas, divida->valor);
+    divida = malloc(sizeof(struct Transacao_cartao_credito));
   }
 }

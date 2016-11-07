@@ -60,16 +60,28 @@ void append_sorted_conta(struct Contas *cabeca, struct Conta *e)
   aux->next = Contasvo;
 }
 
-int find_conta(struct Contas *cabeca, struct Conta *e)
+int find_conta(struct Contas *cabeca, int numero_conta)
 {
   /**
     * Verifica se uma conta realmente existe.
   **/
   struct Contas *aux;
   for(aux = cabeca->next; aux != NULL; aux = aux->next)
-    if(aux->conta->id == e->id)
+    if(aux->conta->numero_conta == numero_conta)
       return 1;
+  printf("Conta inesistente...\n");
   return 0;
+}
+
+struct Conta *getConta(struct Contas *lista, int numero_conta)
+{
+  printf("Numero da Conta: %d\n", numero_conta);
+  for(struct Contas *aux = lista->next; aux != NULL; aux = aux->next)
+  {
+    if(aux->conta->numero_conta == numero_conta)
+      return aux->conta;
+    }
+  return malloc(sizeof(struct Conta));
 }
 
 void print_conta(struct Conta *conta)
