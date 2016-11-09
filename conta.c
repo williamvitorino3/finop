@@ -99,3 +99,16 @@ void print_contas(struct Contas *cabeca)
   **/
   for(struct Contas *aux = cabeca->next; aux != NULL; print_conta(aux->conta), aux = aux->next);
 }
+
+int inputConta(struct Contas *contas)
+{
+  /**
+    * Recebe do usuário o numero de um ciente.
+  **/
+  int numero_conta;
+  setbuf(stdin, NULL);
+  printf("Digite o número da conta:\n>>> ");
+  scanf("%d", &numero_conta);
+  setbuf(stdin, NULL);
+  return (find_conta(contas, numero_conta) ? numero_conta : inputConta(contas));
+}

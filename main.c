@@ -1,15 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "structs.c"
 #include "read.c"
-
+#include "tempo.c"
 
 int getOpcao()
 {
   /**
-    * Representação de menu principal. Pega o valor referênte à opção desejada
-    * e retorna;
+    * Representação de menu principal. Pega o valor referênte à opção
+    * desejada e retorna;
   **/
   int op;
   printf("Escolha uma opção:\n1 - Listar clientes por estado.\n2 - Saldo atual do cliente.\n3 - Listar saldo dos cliente\n4 - Extrato mês atual\n0 - Sair\n>>> ");
@@ -65,12 +66,47 @@ void getEstado(struct Clientes *clientes, struct Contas *contas)
   filtroEstado(clientes, contas, estado);
 }
 
-double getSaldoTotal(struct Contas *cabeca, struct Transacoes *transacoes, int id_cliente)
+double getSaldoTotalPorMes(struct Contas *cabeca, struct Transacoes *transacoes, int id_cliente, int mes_atual)
+{
+  /**
+    * Calcula o saldo total do cliente pelo mês atual.
+  **/
+
+  double saldo = 0;
+
+  for(struct Contas *aux = cabeca->next; aux != NULL; aux = aux->next)
+  {
+    if (aux->conta->id_cliente == id_cliente)
+    {
+      saldo += getSaldoMensal(transacoes, aux->conta->id, mes_atual);
+    }
+  }
+  return saldo;
+}
+
+double getSaldoTotalMesAnterior(struct Contas *cabeca, struct Transacoes *transacoes, int id_cliente, struct tm *data_limite)
 {
   /**
     * Calcula o saldo total do cliente.
   **/
 
+  double saldo = 0;
+
+  for(struct Contas *aux = cabeca->next; aux != NULL; aux = aux->next)
+  {
+    if (aux->conta->id_cliente == id_cliente)
+    {
+      saldo += getSaldoMesAnterior(transacoes, aux->conta->id, data_limite);
+    }
+  }
+  return saldo;
+}
+
+double getSaldoTotal(struct Contas *cabeca, struct Transacoes *transacoes, int id_cliente)
+{
+  /**
+  * Calcula o saldo total do cliente.
+  **/
 
   double saldo = 0;
 
@@ -83,6 +119,7 @@ double getSaldoTotal(struct Contas *cabeca, struct Transacoes *transacoes, int i
   }
   return saldo;
 }
+
 
 void print_saldo(struct Contas *cabeca, struct Transacoes *transacoes, struct Cliente *cliente)
 {
@@ -107,19 +144,6 @@ void print_saldo(struct Contas *cabeca, struct Transacoes *transacoes, struct Cl
   printf("|-------------------------------------------------------|\n");
 }
 
-struct Cliente *inputCliente(struct Clientes *clientes)
-{
-  /**
-    * Recebe do usuário o numero de um ciente.
-  **/
-  char cpf[15];
-  setbuf(stdin, NULL);
-  printf("Digite o CPF do cliente:\n>>> ");
-  scanf("%s", cpf);
-  setbuf(stdin, NULL);
-  return (find_cliente(clientes, cpf) ? getCliente(clientes, cpf) : inputCliente(clientes));
-}
-
 void listarSaldoCLientes(struct Clientes *clientes, struct Contas *contas, struct Transacoes *transacoes)
 {
   /**
@@ -133,50 +157,55 @@ void listarSaldoCLientes(struct Clientes *clientes, struct Contas *contas, struc
   printf("|-------------------------------|-------------------------------|-----------------------|\n");
 }
 
-int inputConta(struct Contas *contas)
+struct Transacao *swap(struct Transacao *transacao)
 {
-  /**
-    * Recebe do usuário o numero de um ciente.
-  **/
-  int numero_conta;
-  setbuf(stdin, NULL);
-  printf("Digite o número da conta:\n>>> ");
-  scanf("%d", &numero_conta);
-  setbuf(stdin, NULL);
-  return (find_conta(contas, numero_conta) ? numero_conta : inputConta(contas));
+  struct Transacao *aux = malloc(sizeof(struct Transacao));
+  aux->id_operacao = transacao->id_operacao;
+  aux->data = transacao->data;
+  aux->valor = transacao->valor * -1;
+
+  return aux;
 }
 
-void print_extrato_atual(struct Cliente *cliente, struct Contas *contas, int numero_conta, struct Transacoes *transacoes, struct Transacoes_cartao_credito *tranzacoes_cartao)
+void print_extrato_atual(struct Cliente *cliente, struct Contas *contas, int numero_conta, struct Transacoes *transacoes, struct tm *dataAtual)
 {
   /**
     * Representa a listagem das transações realizadas pelo cliente no mês atual.
   **/
+
+  struct Transacoes *new = malloc(sizeof(struct Transacoes));
+  new->next = NULL;   // Essa linha é M-U-I-T-O importante!
+
   for(struct Contas *aux = contas->next; aux != NULL; aux = aux->next)    // Percorre a lista de contas.
   {
     if(aux->conta->numero_conta == numero_conta && cliente->id == aux->conta->id_cliente)    // Verifica o numero da conta.
     {
       for(struct Transacoes *lista = transacoes->next; lista != NULL; lista = lista->next)    // Percorre a lista de transações.
       {
-        if (lista->transacao->id_conta_origem == aux->conta->id || lista->transacao->id_conta_destino == aux->conta->id)  // Verifica se o id da conta bate com o id de origem ou de destino da transacao.
+        if (lista->transacao->data.tm_mon == dataAtual->tm_mon && (lista->transacao->id_conta_origem == aux->conta->id || lista->transacao->id_conta_destino == aux->conta->id))  // Verifica se o id da conta bate com o id de origem ou de destino da transacao.
         {
-          print_transacao(lista->transacao);
+          if(lista->transacao->id_conta_origem == aux->conta->id)
+            append_sorted_transacao(new, swap(lista->transacao));
+          else
+            append_sorted_transacao(new, lista->transacao);
         }
-      }/* Transações de cartão de crédito.
-      for (struct Transacoes_cartao_credito *cartao = tranzacoes_cartao->next; cartao != NULL; cartao = cartao->next)
-      {
-        if (cartao->transacao_cartao_credito->id_conta == aux->conta->id)
-        {
-          print_Transacao_cartao_credito(cartao->transacao_cartao_credito);
-        }
-      }*/
+      }
     }
   }
+  printf("|-----------------------|-----------------------|-----------------------|\n");
+  printf("|\tSaldo Anterior\t|\t\t\t|\t %.2lf\t\t|\n", getSaldoTotalMesAnterior(contas, transacoes, cliente->id, dataAtual));
+  printf("|-----------------------|-----------------------|-----------------------|\n");
+  if (new->next != NULL)
+    print_transacoes(new);
+  printf("|-----------------------|-----------------------|-----------------------|\n");
+  printf("|\tSaldo Atual\t|\t\t\t|\t %.2lf\t\t|\n", getSaldoTotalPorMes(contas, transacoes, cliente->id, dataAtual->tm_mon));
+  printf("|-----------------------|-----------------------|-----------------------|\n");
+  free(new);
 }
 
 int main()
 {
-  /**
-    * Abertura do arquivo.
+  /* Abertura do arquivo.
   **/
   FILE *file = fopen("arquivo.txt", "r");
 
@@ -211,7 +240,7 @@ int main()
         listarSaldoCLientes(clientes, contas, transacoes);
         break;
       case 4:
-        print_extrato_atual(inputCliente(clientes), contas, inputConta(contas), transacoes, tranzacoes_cartao);
+        print_extrato_atual(inputCliente(clientes), contas, inputConta(contas), transacoes, getMesAtual());
         break;
       default:
         fclose(file);

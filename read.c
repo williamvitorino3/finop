@@ -92,12 +92,12 @@ void readTransacao(FILE *file, struct Transacoes *lista)
     }
     fscanf(file, "%s\n", linha);
   }while(strcmp(linha, "*transacoes*"));
-
   /// Lê as transações e as adiciona na lista.
-  while (fscanf(file, "%[^,], %d, %d, %d, %lf;\n", transacao->data, &transacao->id_operacao, &transacao->id_conta_origem, &transacao->id_conta_destino, &transacao->valor) == 5)
+  while (fscanf(file, "%d/%d/%d, %d, %d, %d, %lf;\n", &transacao->data.tm_mday, &transacao->data.tm_mon, &transacao->data.tm_year, &transacao->id_operacao, &transacao->id_conta_origem, &transacao->id_conta_destino, &transacao->valor) == 7)
   {
-    //printf("%s, %d, %d, %d, %.2lf;\n", transacao->data, transacao->id_operacao, transacao->id_conta_origem, transacao->id_conta_destino, transacao->valor);
-    insert_transacao(lista, transacao);
+    //printf("%d/%d/%d, %d, %d, %d, %.2lf;\n", transacao->data.tm_mday, transacao->data.tm_mon, transacao->data.tm_year, transacao->id_operacao, transacao->id_conta_origem, transacao->id_conta_destino, transacao->valor);
+    append_sorted_transacao(lista, transacao);
+    //insert_transacao(lista, transacao);
     transacao = malloc(sizeof(struct Transacao));
   }
 }

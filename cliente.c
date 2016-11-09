@@ -86,3 +86,16 @@ void print_cliente(struct Clientes *cabeca)
 {
   for(struct Clientes *aux = cabeca->next; aux != NULL; printf("%s | %s\n", aux->cliente->nome, aux->cliente->estado), aux = aux->next);
 }
+
+struct Cliente *inputCliente(struct Clientes *clientes)
+{
+  /**
+    * Recebe do usuário o numero de um ciente.
+  **/
+  char cpf[15];
+  setbuf(stdin, NULL);
+  printf("Digite o CPF do cliente:\n>>> ");
+  scanf("%s", cpf);
+  setbuf(stdin, NULL);
+  return (find_cliente(clientes, cpf) ? getCliente(clientes, cpf) : inputCliente(clientes));
+}

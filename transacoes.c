@@ -1,9 +1,15 @@
-#include <stdlib.h>
+//#include <stdlib.h>
+
+long long int dias(struct tm data)
+{
+  long long int tempo = (data.tm_year * 365) + ((data.tm_mon-1) * 30) + data.tm_mday;
+  return tempo;
+}
 
 struct Transacao
 {
   int id_operacao, id_conta_origem, id_conta_destino;
-  char data[101];
+  struct tm data;
   double valor;
 };
 
@@ -51,50 +57,133 @@ void append_sorted_transacao(struct Transacoes *cabeca, struct Transacao *e)
 {
 
   /*
-   * Inserção Transacoes fim.
+   * Inserção de Transacoes ordenada por data.
    */
 
   struct Transacoes *aux = cabeca;
-
-  while (aux->next != NULL)
+  for(; aux->next != NULL; aux = aux->next)
   {
-    aux = aux->next;
+    if (dias(aux->next->transacao->data) >= dias(e->data))
+      break;
   }
-
   struct Transacoes *ultimo = malloc(sizeof(struct Transacoes));
   ultimo->transacao = e;
-  ultimo->next = NULL;
+  ultimo->next = aux->next;
 
   aux->next = ultimo;
 }
 
 double getSaldo(struct Transacoes *cabeca, int id_conta)
 {
+  /**
+    * Calcula o saldo acumulado das transações referêntes à conta.
+  **/
+
+  /* Variável que guarda o saldo acumulado. */
   double saldo = 0.0;
+  /* Percorre a lista de Transações. */
   for(struct Transacoes *aux = cabeca->next; aux != NULL; aux = aux->next)
   {
+    /* Verifica se a conta corresponde à conta origem da transação. */
     if(aux->transacao->id_conta_origem == id_conta)
     {
+      /* Subtrai o valor do saldo acumulado. */
       saldo -= aux->transacao->valor;
-    }else if(aux->transacao->id_conta_destino == id_conta)
+    }
+      /* Verifica se a conta corresponde à conta destino da transação. */
+      else if(aux->transacao->id_conta_destino == id_conta)
     {
+      /* Soma o valor do saldo acumulado. */
       saldo += aux->transacao->valor;
     }
-    /*
-    saldo += ( (aux->transacao->id_conta_origem == id_conta) ? (aux->transacao->valor*(-1)) :
-    ( (aux->transacao->id_conta_destino) ? aux->transacao->valor : 0 ) );
-    */
   }
+
+  /* Retorna o saldo acumulado. */
+  return saldo;
+}
+
+double getSaldoMensal(struct Transacoes *cabeca, int id_conta, int mes_atual)
+{
+  /**
+    * Calcula o saldo acumulado das transações referêntes à conta.
+  **/
+
+  /* Variável que guarda o saldo acumulado. */
+  double saldo = 0.0;
+
+  /* Percorre a lista de Transações. */
+  for(struct Transacoes *aux = cabeca->next; aux != NULL; aux = aux->next)
+  {
+    /* Verifica se o més corresponde ao passado por paramentro. */
+    if (aux->transacao->data.tm_mon == mes_atual)
+    {
+      /* Verifica se a conta corresponde à conta origem da transação. */
+      if(aux->transacao->id_conta_origem == id_conta)
+      {
+        /* Subtrai o valor do saldo acumulado. */
+        saldo -= aux->transacao->valor;
+      }
+        /* Verifica se a conta corresponde à conta destino da transação. */
+        else if(aux->transacao->id_conta_destino == id_conta)
+      {
+        /* Soma o valor do saldo acumulado. */
+        saldo += aux->transacao->valor;
+      }
+    }
+  }
+
+  /* Retorna o saldo acumulado. */
+  return saldo;
+}
+
+double getSaldoMesAnterior(struct Transacoes *cabeca, int id_conta, struct tm *data_limite)
+{
+  /**
+    * Calcula o saldo acumulado das transações referêntes à conta.
+  **/
+
+  /* Variável que guarda o saldo acumulado. */
+  double saldo = 0.0;
+
+  /* Percorre a lista de Transações. */
+  for(struct Transacoes *aux = cabeca->next; aux != NULL; aux = aux->next)
+  {
+    /* Verifica se o mês é menor ou igual ao passado por paramentro. && aux->transacao->data.tm_year <= data_limite->tm_year*/
+    if (aux->transacao->data.tm_mon < data_limite->tm_mon)
+    {
+      /* Verifica se a conta corresponde à conta origem da transação. */
+      if(aux->transacao->id_conta_origem == id_conta)
+      {
+        /* Subtrai o valor do saldo acumulado. */
+        saldo -= aux->transacao->valor;
+      }
+        /* Verifica se a conta corresponde à conta destino da transação. */
+        else if(aux->transacao->id_conta_destino == id_conta)
+      {
+        /* Soma o valor do saldo acumulado. */
+        saldo += aux->transacao->valor;
+      }
+    }
+  }
+
+  /* Retorna o saldo acumulado. */
   return saldo;
 }
 
 void print_transacao(struct Transacao *transacao)
 {
-    printf("|\t%s\t|\t%s\t|\t %.2lf\t\t|\n", transacao->data, (transacao->id_operacao == 1 ? "saque\t" : (transacao->id_operacao == 2 ? "depósito" : "tranferência")), transacao->valor);
+  /**
+    * Mostra os detalhes de uma transação.
+  **/
+  printf("|\t%d/%d/%d\t|\t%s\t|\t%+.2lf\t\t|\n", transacao->data.tm_mday, transacao->data.tm_mon, transacao->data.tm_year, (transacao->id_operacao == 1 ? "saque\t" : (transacao->id_operacao == 2 ? "depósito" : "tranferência")), transacao->valor);
 }
 
 void print_transacoes(struct Transacoes *cabeca)
 {
+  /**
+    * Percorre a lista de transações e
+    * mostra os detalhes de uma transação.
+  **/
   for(struct Transacoes *aux = cabeca->next; aux != NULL; aux = aux->next)
   {
     print_transacao(aux->transacao);
