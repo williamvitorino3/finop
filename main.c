@@ -13,9 +13,9 @@ int getOpcao()
     * desejada e retorna;
   **/
   int op;
-  printf("Escolha uma opção:\n1 - Listar clientes por estado.\n2 - Saldo atual do cliente.\n3 - Listar saldo dos cliente\n4 - Extrato mês atual\n0 - Sair\n>>> ");
+  printf("Escolha uma opção:\n1 - Listar clientes por estado.\n2 - Saldo atual do cliente.\n3 - Listar saldo dos cliente\n4 - Extrato mês atual\n5 - Extrato mês anterior\n0 - Sair\n>>> ");
   scanf("%d", &op);
-  return (op >= 0 && op<= 4 ? op : getOpcao());
+  return (op >= 0 && op<= 5 ? op : getOpcao());
 }
 
 int qtdContas(struct Contas *cabeca, int id_cliente)
@@ -167,7 +167,7 @@ struct Transacao *swap(struct Transacao *transacao)
   return aux;
 }
 
-void print_extrato_atual(struct Cliente *cliente, struct Contas *contas, int numero_conta, struct Transacoes *transacoes, struct tm *dataAtual)
+void print_extrato(struct Cliente *cliente, struct Contas *contas, int numero_conta, struct Transacoes *transacoes, struct tm *dataAtual)
 {
   /**
     * Representa a listagem das transações realizadas pelo cliente no mês atual.
@@ -240,7 +240,10 @@ int main()
         listarSaldoCLientes(clientes, contas, transacoes);
         break;
       case 4:
-        print_extrato_atual(inputCliente(clientes), contas, inputConta(contas), transacoes, getMesAtual());
+        print_extrato(inputCliente(clientes), contas, inputConta(contas), transacoes, getMesAtual());
+        break;
+      case 5:
+        print_extrato(inputCliente(clientes), contas, inputConta(contas), transacoes, inputMesAtual());
         break;
       default:
         fclose(file);
