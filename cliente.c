@@ -43,32 +43,15 @@ void append_cliente(struct Clientes *cabeca, struct Cliente *e)
   aux->next = ultimo;
 }
 
-void append_sorted_cliente(struct Clientes *cabeca, struct Cliente *e)
-{
-  /*
-   * Inserção ordenada.
-   */
-
-  struct Clientes *aux = cabeca;
-  while (aux->next != NULL && aux->next->cliente->id <= e->id)
-  {
-    aux = aux->next;
-  }
-
-  struct Clientes *Clientesvo = malloc(sizeof(struct Clientes));
-  Clientesvo->cliente = e;
-  Clientesvo->next = aux->next;
-  aux->next = Clientesvo;
-}
-
-int find_cliente(struct Clientes *cabeca, char cpf[])
+int find_cliente(struct Clientes *cabeca, char cpf[], int echo)
 {
   for(struct Clientes *aux = cabeca->next; aux != NULL; aux = aux->next)
     if(!strcmp(aux->cliente->cpf, cpf))
     {
       return 1;
     }
-  printf("CPF Inexistente.\n");
+  if(echo)
+    printf("CPF Inexistente.\n");
   return 0;
 }
 
@@ -82,11 +65,6 @@ struct Cliente *getCliente(struct Clientes *lista, char *cpf)
   return malloc(sizeof(struct Cliente));
 }
 
-void print_cliente(struct Clientes *cabeca)
-{
-  for(struct Clientes *aux = cabeca->next; aux != NULL; printf("%s | %s\n", aux->cliente->nome, aux->cliente->estado), aux = aux->next);
-}
-
 struct Cliente *inputCliente(struct Clientes *clientes)
 {
   /**
@@ -97,5 +75,5 @@ struct Cliente *inputCliente(struct Clientes *clientes)
   printf("Digite o CPF do cliente:\n>>> ");
   scanf("%s", cpf);
   setbuf(stdin, NULL);
-  return (find_cliente(clientes, cpf) ? getCliente(clientes, cpf) : inputCliente(clientes));
+  return (find_cliente(clientes, cpf, 1) ? getCliente(clientes, cpf) : inputCliente(clientes));
 }

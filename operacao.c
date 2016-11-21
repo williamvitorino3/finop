@@ -41,24 +41,31 @@ void append_operacao(struct Operacoes *cabeca, struct Operacao *e)
 
   aux->next = ultimo;
 }
-/*
-void append_sorted_operacao(struct Operacao *cabeca, struct Operacao *e)
+
+struct Operacao *getOperacaoInvalida()
 {
-  /*
-   * Inserção ordenada.
-   *//*
+  // Cria uma nova operação.
+  struct Operacao *new = malloc(sizeof(struct Operacao));
 
-  struct Operacoes *aux = cabeca;
-  while (aux->next != NULL && aux->next->operacao->id <= e->id)
-  {
-    aux = aux->next;
-  }
+  // Preenche com dados referêntes à operação inválida.
+  new->id = -1;
+  strcpy(new->nome, "Desconhecida");
 
-  struct Operacao *Operacao = malloc(sizeof(struct Operacoes));
-  Operacao->operacao = e;
-  Operacao->next = aux->next;
-  aux->next = Operacao;
-}*/
+  // Retorna a operação recem criada.
+  return new;
+}
+
+struct Operacao *getOperacao(struct Operacoes *operacoes, int id_operacao)
+{
+  // Percorre a lista de operações.
+  for(struct Operacoes *aux = operacoes->next; aux != NULL; aux = aux->next)
+    // Verifica se a operação atual corresponde à operação desejada.
+    if (aux->operacao->id == id_operacao)
+      // Retorna a operação desejada.
+      return aux->operacao;
+
+  return getOperacaoInvalida();
+}
 
 int find_operacao(struct Operacoes *cabeca, struct Operacao *e)
 {

@@ -1,8 +1,9 @@
 struct Transacao_cartao_credito
 {
   int id_conta, qtde_parcelas;
-  char data_compra[101],descricao[10001];
+  char descricao[10001];
   double valor;
+  struct tm data_compra;
 };
 
 
@@ -34,26 +35,76 @@ void append_Transacoes_cartao_credito(struct Transacoes_cartao_credito *cabeca, 
 
   struct Transacoes_cartao_credito *aux = cabeca;
 
-  while (aux->next != NULL)
+  for(;aux->next != NULL; aux = aux->next)
   {
-    aux = aux->next;
+    if(dias(aux->next->transacao_cartao_credito->data_compra) >= dias(e->data_compra))
+    {
+      break;
+    }
   }
-
   struct Transacoes_cartao_credito *ultimo = malloc(sizeof(struct Transacoes_cartao_credito));
   ultimo->transacao_cartao_credito = e;
-
+  ultimo->next = aux->next;
   aux->next = ultimo;
 }
 
-void print_Transacao_cartao_credito(struct Transacao_cartao_credito *cartao)
+int parcelaAtual(struct Transacao_cartao_credito *transacao, struct tm *dataAtual)
 {
-  printf("|\t%s\t|\t%s\t|\t %.2lf\t\t|\n", cartao->data_compra, cartao->descricao, cartao->valor);
+  /**
+    * Calcula a parcela em que a dívida se encontra.
+  **/
+
+  /// Subitrai a data da compra da data atual e retorna a quantidade de meses.
+  int meses = (dataAtual->tm_mon + dataAtual->tm_year*12) -
+              (transacao->data_compra.tm_mon + transacao->data_compra.tm_year*12);
+
+  return meses;
 }
 
-void print_Transacoes_cartao_credito(struct Transacoes_cartao_credito *cabeca)
+int parcelasRestantes(struct Transacao_cartao_credito *transacao, struct tm *dataAtual)
 {
+  /**
+    * Calcula a quantidade de parcelas que faltam para quitar a dívida.
+  **/
+
+  /*
+  Subitrai a quantidade de messes da data atual, menos o mês referênta à compra,
+  da quantidade de meses da data da última parcela.
+  */
+  int parcelas = (transacao->data_compra.tm_year*12 + transacao->data_compra.tm_mon
+                + transacao->qtde_parcelas) - (dataAtual->tm_year*12 + dataAtual->tm_mon-1);
+  return parcelas;
+}
+
+void print_Transacao_cartao_credito(FILE *out, struct Transacao_cartao_credito *cartao, struct tm *dataCliente)
+{
+  /**
+    * Mostra no formato especificado a transação de cartão de crédito recebida.
+  **/
+
+  fprintf(out, "|\t\t%d/%d/%d\t\t|\t%15s\t%d/%d\t|\tR$ %.2lf\t|\n", cartao->data_compra.tm_mday, cartao->data_compra.tm_mon, cartao->data_compra.tm_year, cartao->descricao, parcelaAtual(cartao, dataCliente), cartao->qtde_parcelas, cartao->valor);
+}
+
+void print_Transacoes_cartao_credito(FILE *out, struct Transacoes_cartao_credito *cabeca, struct tm *dataCliente)
+{
+  /**
+    * Mostra todas as transações de cartão de crédito da lista recebida.
+  **/
+
+  fprintf(out, "|---------------|---------------------|-----------|\n");
   for(struct Transacoes_cartao_credito *aux = cabeca->next; aux != NULL; aux = aux->next)
   {
-    print_Transacao_cartao_credito(aux->transacao_cartao_credito);
+    print_Transacao_cartao_credito(out, aux->transacao_cartao_credito, dataCliente);
   }
+  fprintf(out, "|---------------|---------------------|-----------|\n");
+}
+
+double valorFatura(struct Transacao_cartao_credito *conta, struct tm *dataCliente)
+{
+  /**
+    * Calcula o valor restante da transação de cartão de crédito à ser pago.
+  **/
+
+  double valor_por_mes = conta->valor/conta->qtde_parcelas;
+  return (parcelaAtual(conta, dataCliente) ? valor_por_mes * parcelasRestantes(conta, dataCliente) : 0); ///
 }

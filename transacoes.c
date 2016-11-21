@@ -170,22 +170,37 @@ double getSaldoMesAnterior(struct Transacoes *cabeca, int id_conta, struct tm *d
   return saldo;
 }
 
-void print_transacao(struct Transacao *transacao)
+void print_transacao(struct Transacao *transacao, struct Operacoes *operacoes)
 {
   /**
     * Mostra os detalhes de uma transação.
   **/
-  printf("|\t%d/%d/%d\t|\t%s\t|\t%+.2lf\t\t|\n", transacao->data.tm_mday, transacao->data.tm_mon, transacao->data.tm_year, (transacao->id_operacao == 1 ? "saque\t" : (transacao->id_operacao == 2 ? "depósito" : "tranferência")), transacao->valor);
+  printf("|\t%d/%d/%d\t|\t%s\t|\t%+.2lf\t\t|\n", transacao->data.tm_mday, transacao->data.tm_mon, transacao->data.tm_year, getOperacao(operacoes, transacao->id_operacao)->nome, transacao->valor);
 }
 
-void print_transacoes(struct Transacoes *cabeca)
+void print_transacoes(struct Transacoes *cabeca, struct Operacoes *operacoes)
 {
   /**
     * Percorre a lista de transações e
-    * mostra os detalhes de uma transação.
+    * mostra os detalhes de cada transação.
   **/
+
   for(struct Transacoes *aux = cabeca->next; aux != NULL; aux = aux->next)
   {
-    print_transacao(aux->transacao);
+    print_transacao(aux->transacao, operacoes);
+  }
+}
+
+void garbageColector(struct Transacoes *lista)
+{
+  // Percorre a lista inteira.
+  while (lista->next != NULL)
+  {
+    // Salva a refeência do próximo nó da lista.
+    struct Transacoes *prox = lista->next;
+    // Limpa o nó atual;
+    free(lista);
+    // Passa para o próximo nó da lista.
+    lista = prox;
   }
 }
