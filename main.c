@@ -49,7 +49,9 @@ void filtroEstado(struct Clientes *clientes, struct Contas *contas, char *estado
     * Representa a listagem dos clientes por estado.
   **/
 
-  printf("|---------------|-----------------------|-----------------------|-----------------------|---------------|---------------|\n");
+  printf("|---------------|-----------------------|-----------------------|-----------------------|-----------------------|---------------|\n");
+  printf("|\tid\t|\tnome\t\t|\tCPF\t\t|\ttelefone\t|\tmunicípio\t|     contas    |\n");
+  printf("|---------------|-----------------------|-----------------------|-----------------------|-----------------------|---------------|\n");
 
   /// Percorre a lista de clientes
   for(struct Clientes *aux = clientes->next; aux != NULL; aux = aux->next)
@@ -58,10 +60,10 @@ void filtroEstado(struct Clientes *clientes, struct Contas *contas, char *estado
     if (strcmp(aux->cliente->estado, estado) == 0)
     {
       /// Mostra o cliente no formato pré definido.
-      printf("|\t%d\t|\t%s\t|\t%s\t|\t%s\t|\t%s\t|\t%d\t|\n", aux->cliente->id, aux->cliente->nome, aux->cliente->cpf, aux->cliente->telefone, aux->cliente->municipio, qtdContas(contas, aux->cliente->id));
+      printf("|\t%d\t|\t%s\t|\t%s\t|\t%s\t|\t%s\t\t|\t%d\t|\n", aux->cliente->id, aux->cliente->nome, aux->cliente->cpf, aux->cliente->telefone, aux->cliente->municipio, qtdContas(contas, aux->cliente->id));
     }
   }
-  printf("|---------------|-----------------------|-----------------------|-----------------------|---------------|---------------|\n");
+  printf("|---------------|-----------------------|-----------------------|-----------------------|-----------------------|---------------|\n");
 }
 
 void getEstado(struct Clientes *clientes, struct Contas *contas)
@@ -69,9 +71,15 @@ void getEstado(struct Clientes *clientes, struct Contas *contas)
   /**
     * Pega o estado do cliente e manda para o filtro de clientes por estado.
   **/
+
   char estado[3];
   printf("Digite a sigla do estado:\n>>> ");
   scanf("%s", estado);
+
+  /// Converte a string lida em maiúscula.
+  estado[0] = toupper(estado[0]);
+  estado[1] = toupper(estado[1]);
+
   filtroEstado(clientes, contas, estado);
 }
 
@@ -276,7 +284,7 @@ void print_extrato(struct Cliente *cliente, struct Contas *contas, int numero_co
   /**
     * Representa a listagem das transações realizadas pelo cliente no mês atual.
   **/
-
+  printf("%d\n", dataAtual->tm_year);
   /// Borda da tabela à ser mostrada.
   char borda[] = "|-----------------------|-----------------------|-----------------------|\n";
 
@@ -319,7 +327,7 @@ void print_extrato(struct Cliente *cliente, struct Contas *contas, int numero_co
 
   /// Mostra o somatório do saldo das transações com data referênte ao mês atual.
   printf("%s", borda);
-  printf("|\tSaldo Atual\t|\t\t\t|\t %.2lf\t\t|\n", getSaldoTotalPorMes(contas, transacoes, cliente->id, dataAtual->tm_mon));
+  printf("|\tSaldo Atual\t|\t\t\t|\t %.2lf\t\t|\n", (getSaldoTotalPorMes(contas, transacoes, cliente->id, dataAtual->tm_mon) + getSaldoTotalMesAnterior(contas, transacoes, cliente->id, dataAtual) ));
   printf("%s", borda);
 
   /// Limpa a lista de transações auxiliar criada.
@@ -334,7 +342,7 @@ double valorTotalFatura(struct Transacoes_cartao_credito *cartao, struct tm *dat
   double total = 0.0;
   for(struct Transacoes_cartao_credito *aux = cartao->next; aux != NULL; aux = aux->next)
   {
-    total += valorFatura(aux->transacao_cartao_credito, dataCliente);
+    total += valorFatura(aux->transacao_cartao_credito);
   }
 
   return total;
@@ -459,6 +467,7 @@ int main()
         print_extrato(inputCliente(clientes), contas, inputConta(contas), transacoes, operacoes, inputMesAtual());
         break;
       case 6:
+        /// Por o valor máximo para só os valores do mês.
         fatura_cartao(inputCliente(clientes), transacoes_cartao, contas, inputMesAtual());
         break;
       default:

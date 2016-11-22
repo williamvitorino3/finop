@@ -82,7 +82,7 @@ void print_Transacao_cartao_credito(FILE *out, struct Transacao_cartao_credito *
     * Mostra no formato especificado a transação de cartão de crédito recebida.
   **/
 
-  fprintf(out, "|\t\t%d/%d/%d\t\t|\t%15s\t%d/%d\t|\tR$ %.2lf\t|\n", cartao->data_compra.tm_mday, cartao->data_compra.tm_mon, cartao->data_compra.tm_year, cartao->descricao, parcelaAtual(cartao, dataCliente), cartao->qtde_parcelas, cartao->valor);
+  fprintf(out, "|\t\t%d/%d/%d\t\t|\t%15s\t%d/%d\t|\tR$ %.2lf\t|\n", cartao->data_compra.tm_mday, cartao->data_compra.tm_mon, cartao->data_compra.tm_year, cartao->descricao, parcelaAtual(cartao, dataCliente), cartao->qtde_parcelas, (cartao->valor/cartao->qtde_parcelas));
 }
 
 void print_Transacoes_cartao_credito(FILE *out, struct Transacoes_cartao_credito *cabeca, struct tm *dataCliente)
@@ -99,12 +99,11 @@ void print_Transacoes_cartao_credito(FILE *out, struct Transacoes_cartao_credito
   fprintf(out, "|---------------|---------------------|-----------|\n");
 }
 
-double valorFatura(struct Transacao_cartao_credito *conta, struct tm *dataCliente)
+double valorFatura(struct Transacao_cartao_credito *conta)
 {
   /**
     * Calcula o valor restante da transação de cartão de crédito à ser pago.
   **/
 
-  double valor_por_mes = conta->valor/conta->qtde_parcelas;
-  return (parcelaAtual(conta, dataCliente) ? valor_por_mes * parcelasRestantes(conta, dataCliente) : 0); ///
+  return conta->valor/conta->qtde_parcelas;
 }

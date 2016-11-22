@@ -4,8 +4,8 @@ struct tm *getMesAtual()
   time_t segundos;
   time(&segundos); //obtém a hora em segundos.
   hoje = localtime(&segundos); //converte a hora de segundos para struct tm.
-  hoje->tm_mon+=1;  // Atuliza o mês.
-  hoje->tm_year = 2016;
+  hoje->tm_mon += 1;  // Atuliza o mês.
+  hoje->tm_year += 1900;
   return hoje;
 }
 
