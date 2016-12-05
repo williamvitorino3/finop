@@ -1,3 +1,7 @@
+/**
+  * Autor = William Vitorino.
+**/
+
 struct Cliente
 {
   int id;

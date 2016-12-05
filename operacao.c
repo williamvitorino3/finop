@@ -1,3 +1,7 @@
+/**
+  * Autor = William Vitorino.
+**/
+
 struct Operacao {
   int id;
   char nome[101];

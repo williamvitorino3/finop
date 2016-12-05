@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+#####################################
+##### Autor = William Vitorino. #####
+#####################################
+
 from os import system
 
 system("git add *")

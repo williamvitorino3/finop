@@ -1,3 +1,7 @@
+/**
+  * Autor = William Vitorino.
+**/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -5,6 +9,9 @@
 #include "tempo.c"
 #include "structs.c"
 #include "read.c"
+
+/// TODO: Terminar a logo;
+char teste[] = "\\ \\    /\\    / /\n \\ \\  /  \\  / /\n  \\ \\/ /\\ \\/ /\n   \\  /  \\  /\n    \\/    \\/";
 
 int getOpcao()
 {
@@ -14,7 +21,7 @@ int getOpcao()
   **/
 
   int op;
-  printf("Escolha uma opção:\n1 - Listar clientes por estado.\n2 - Saldo atual do cliente.\n3 - Listar saldo dos cliente\n4 - Extrato mês atual\n5 - Extrato mês anterior\n6 - Fatura do cartão de crédito\n0 - Sair\n>>> ");
+  printf("\nEscolha uma opção:\n1 - Listar clientes por estado.\n2 - Saldo atual do cliente.\n3 - Listar saldo dos cliente\n4 - Extrato mês atual\n5 - Extrato mês anterior\n6 - Fatura do cartão de crédito\n0 - Sair\n>>> ");
   scanf("%d", &op);
   return (op >= 0 && op<= 6 ? op : getOpcao());
 }
@@ -363,7 +370,7 @@ int validaData(struct Transacao_cartao_credito *transacao, struct tm *dataAtual)
   /// Data atual.
   long long int now = dataAtual->tm_year*12 + dataAtual->tm_mon;
 
-  return (intervalo_inf <= now && now <= intervalo_sup);
+  return (intervalo_inf < now && now <= intervalo_sup);
 }
 
 void fatura_cartao(struct Cliente *cliente, struct Transacoes_cartao_credito *cartao, struct Contas *contas, struct tm *dataCliente)
@@ -400,20 +407,20 @@ void fatura_cartao(struct Cliente *cliente, struct Transacoes_cartao_credito *ca
   /// Abre o arquivo paraa impreção do extrato.
   FILE *extrato = fopen("extrato.txt", "w");
 
-  fprintf(extrato, "\n|---------------|---------------------|-----------|\n");
+  fprintf(extrato, "\n|---------------|-------------------------|-----------|\n");
 
   /// Imprime o nome do cliente.
-  fprintf(extrato, "|\t\t\t\t\t\t\t\t\t\t%s\t\t\t\t\t\t\t\t|\n", cliente->nome);
+  fprintf(extrato, "|                      %s                 |\n", cliente->nome);
 
   /// Imprime a lista de transações.
   print_Transacoes_cartao_credito(extrato ,dividas, dataCliente);
 
   /// Imprime o valor mínimo à pagar por mês.
-  fprintf(extrato, "|\tValor Mínimo\t|\t\t\t\t\t\t\t\t\t\t\t|\tR$ %5.2lf\t|\n", valorTotalFatura(dividas, dataCliente)*0.1);
+  fprintf(extrato, "|  Valor Mínimo |                         | R$%7.2lf |\n", valorTotalFatura(dividas, dataCliente)*0.1);
 
   /// Imprime o valor máximo à pagar por mês.
-  fprintf(extrato, "|\tValor Máximo\t|\t\t\t\t\t\t\t\t\t\t\t|\tR$ %5.2lf\t|\n", valorTotalFatura(dividas, dataCliente));
-  fprintf(extrato, "|---------------|---------------------|-----------|\n");
+  fprintf(extrato, "|  Valor Máximo |                         | R$%7.2lf |\n", valorTotalFatura(dividas, dataCliente));
+  fprintf(extrato, "|---------------|-------------------------|-----------|\n");
 
   /// Fecha o arquivo do extrato.
   fclose(extrato);
@@ -421,8 +428,8 @@ void fatura_cartao(struct Cliente *cliente, struct Transacoes_cartao_credito *ca
 
 int main()
 {
-  /* Abertura do arquivo.
-  **/
+    printf("%s\n\n", teste);
+  /// Abertura do arquivo.
   FILE *file = fopen("arquivo.txt", "r");
 
   /// Estruturas para armazenar os dados do arquivo.
@@ -432,14 +439,14 @@ int main()
   struct Transacoes *transacoes = malloc(sizeof(struct Transacoes));
   struct Transacoes_cartao_credito *transacoes_cartao = malloc(sizeof(struct Transacoes_cartao_credito));
 
-  printf("Lendo arquivo, por favor aguarde...\n");
-
   /// Lê as estruturas do arquivo.
   readCliente(file, clientes);
   readConta(file, contas);
   readOperacoes(file, operacoes);
   readTransacao(file, transacoes);
   readTransacoes_cartao_credito(file, transacoes_cartao);
+
+  printf("\rLeitura do arquivo concluída...                                    \n");
 
   /// Laço proncipal do projeto.
   while (1)

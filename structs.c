@@ -1,3 +1,7 @@
+/**
+  * Autor = William Vitorino.
+**/
+
 #include "cliente.c"
 #include "operacao.c"
 #include "conta.c"

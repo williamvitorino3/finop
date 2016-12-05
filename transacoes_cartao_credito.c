@@ -1,3 +1,7 @@
+/**
+  * Autor = William Vitorino.
+**/
+
 struct Transacao_cartao_credito
 {
   int id_conta, qtde_parcelas;
@@ -82,7 +86,7 @@ void print_Transacao_cartao_credito(FILE *out, struct Transacao_cartao_credito *
     * Mostra no formato especificado a transação de cartão de crédito recebida.
   **/
 
-  fprintf(out, "|\t\t%d/%d/%d\t\t|\t%15s\t%d/%d\t|\tR$ %.2lf\t|\n", cartao->data_compra.tm_mday, cartao->data_compra.tm_mon, cartao->data_compra.tm_year, cartao->descricao, parcelaAtual(cartao, dataCliente), cartao->qtde_parcelas, (cartao->valor/cartao->qtde_parcelas));
+  fprintf(out, "|   %d/%d/%d   | %15s  %2d /%2d | R$%7.2lf |\n", cartao->data_compra.tm_mday, cartao->data_compra.tm_mon, cartao->data_compra.tm_year, cartao->descricao, parcelaAtual(cartao, dataCliente), cartao->qtde_parcelas, (cartao->valor/cartao->qtde_parcelas));
 }
 
 void print_Transacoes_cartao_credito(FILE *out, struct Transacoes_cartao_credito *cabeca, struct tm *dataCliente)
@@ -91,12 +95,12 @@ void print_Transacoes_cartao_credito(FILE *out, struct Transacoes_cartao_credito
     * Mostra todas as transações de cartão de crédito da lista recebida.
   **/
 
-  fprintf(out, "|---------------|---------------------|-----------|\n");
+  fprintf(out, "|---------------|-------------------------|-----------|\n");
   for(struct Transacoes_cartao_credito *aux = cabeca->next; aux != NULL; aux = aux->next)
   {
     print_Transacao_cartao_credito(out, aux->transacao_cartao_credito, dataCliente);
   }
-  fprintf(out, "|---------------|---------------------|-----------|\n");
+  fprintf(out, "|---------------|-------------------------|-----------|\n");
 }
 
 double valorFatura(struct Transacao_cartao_credito *conta)

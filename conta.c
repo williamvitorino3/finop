@@ -1,3 +1,7 @@
+/**
+  * Autor = William Vitorino.
+**/
+
 struct Conta
 {
   int id, numero_conta, variacao, id_cliente;

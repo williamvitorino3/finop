@@ -1,4 +1,6 @@
-//#include <stdlib.h>
+/**
+  * Autor = William Vitorino.
+**/
 
 long long int dias(struct tm data)
 {
