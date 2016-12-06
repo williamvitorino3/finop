@@ -12,11 +12,9 @@ int pos = 0;
 void lendo(char str[])
 {
   char quebra[] = "                                   ";
-  printf("\rLendo %s %c %s", str, status[(pos%4)], quebra);
+  printf("\rLendo %s %c %d %s", str, status[(pos%4)], pos, quebra);
   pos++;
   fflush(stdout);
-  for(int d1 = 1; d1 <= 6500; d1++)
-          for(int d2 = 1; d2 <= 6500; d2++);
 }
 
 void readCliente(FILE *file, struct Clientes *lista)
@@ -27,7 +25,7 @@ void readCliente(FILE *file, struct Clientes *lista)
   struct Cliente *cliente = malloc(sizeof(struct Cliente));   // Estrutura de cada cliente.
 
   char linha[10001];    // Linha do arquivo.
-
+  pos = 0;
   /* Procura o cabeçalho referênta à cliente. */
   do
   {
@@ -39,7 +37,7 @@ void readCliente(FILE *file, struct Clientes *lista)
   }while(strcmp(linha, "*cliente*"));
 
   /* Lê os clientes do arquivo e os adiciona na lista. */
-  while(fscanf(file, "%d, %[A-z ], %[^,], %[^,], %[^,], %[^;];", &cliente->id, cliente->nome, cliente->cpf, cliente->telefone, cliente->municipio, cliente->estado) == 6)
+  while(fscanf(file, "%d, %[^,], %[^,], %[^,], %[^,], %[^;];", &cliente->id, cliente->nome, cliente->cpf, cliente->telefone, cliente->municipio, cliente->estado) == 6)
   {
     lendo("Clientes");
     //printf("%d, %s, %s, %s, %s, %s;\n", cliente->id, cliente->nome, cliente->cpf, cliente->telefone, cliente->municipio, cliente->estado);
@@ -53,7 +51,7 @@ void readConta(FILE *file, struct Contas *contas)
 {
   struct Conta *conta = malloc(sizeof(struct Conta));   // Estrutura de cada conta.
   char linha[10001];    // Linha do arquivo.
-
+  pos = 0;
   /* Procura o cabeçalho referênta à cliente. */
   do
   {
@@ -69,8 +67,8 @@ void readConta(FILE *file, struct Contas *contas)
   {
     lendo("Contas");
     insert_conta(contas, conta);
-    conta = malloc(sizeof(struct Conta));
     //printf("%d, %d, %d, %d;\n", conta->id, conta->numero_conta, conta->variacao, conta->id_cliente);
+    conta = malloc(sizeof(struct Conta));
   }
 }
 
@@ -78,6 +76,7 @@ void readOperacoes(FILE *file, struct Operacoes *lista)
 {
   struct Operacao *operacao = malloc(sizeof(struct Operacao));
   char linha[10001];
+  pos = 0;
   do
   {
     if(feof(file))
@@ -103,7 +102,7 @@ void readTransacao(FILE *file, struct Transacoes *lista)
   **/
   struct Transacao *transacao = malloc(sizeof(struct Transacao));
   char linha[10001];
-
+  pos = 0;
   /// Procura o cabeçalho das Transacoes.
   do
   {
@@ -116,7 +115,6 @@ void readTransacao(FILE *file, struct Transacoes *lista)
     }
     fscanf(file, "%s\n", linha);
   }while(strcmp(linha, "*transacoes*"));
-
   // Lê as transações e as adiciona na lista.
   while (fscanf(file, "%d/%d/%d, %d, %d, %d, %lf;\n", &transacao->data.tm_mday, &transacao->data.tm_mon, &transacao->data.tm_year, &transacao->id_operacao, &transacao->id_conta_origem, &transacao->id_conta_destino, &transacao->valor) == 7)
   {
@@ -135,12 +133,13 @@ void readTransacoes_cartao_credito(FILE *file, struct Transacoes_cartao_credito 
   **/
   struct Transacao_cartao_credito *divida = malloc(sizeof(struct Transacao_cartao_credito));
   char linha[10001];
+  pos = 0;
   do
   {
-  if(feof(file))
-  {
-    file = fopen("arquivo.txt", "r");
-  }
+    if(feof(file))
+    {
+        file = fopen("arquivo.txt", "r");
+    }
     fscanf(file, "%s\n", linha);
   }while(strcmp(linha, "*transacoes_cartao_credito*"));
 
