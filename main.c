@@ -6,12 +6,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <ctype.h>
 #include "tempo.c"
 #include "structs.c"
 #include "read.c"
-
-/// TODO: Terminar a logo;
-char teste[] = "\\ \\    /\\    / /\n \\ \\  /  \\  / /\n  \\ \\/ /\\ \\/ /\n   \\  /  \\  /\n    \\/    \\/";
 
 int getOpcao()
 {
@@ -21,7 +19,7 @@ int getOpcao()
   **/
 
   int op;
-  printf("\nEscolha uma opção:\n1 - Listar clientes por estado.\n2 - Saldo atual do cliente.\n3 - Listar saldo dos cliente\n4 - Extrato mês atual\n5 - Extrato mês anterior\n6 - Fatura do cartão de crédito\n0 - Sair\n>>> ");
+  printf("\nEscolha uma opção:\n[ 1 ] - Listar clientes por estado.\t[ 2 ] - Saldo atual do cliente.\n[ 3 ] - Listar saldo dos cliente\t[ 4 ] - Extrato mês atual\n[ 5 ] - Extrato mês anterior\t\t[ 6 ] - Fatura do cartão de crédito\n[ 0 ] - Sair\n>>> ");
   scanf("%d", &op);
   return (op >= 0 && op<= 6 ? op : getOpcao());
 }
@@ -55,10 +53,10 @@ void filtroEstado(struct Clientes *clientes, struct Contas *contas, char *estado
   /**
     * Representa a listagem dos clientes por estado.
   **/
-
-  printf("|---------------|-----------------------|-----------------------|-----------------------|-----------------------|---------------|\n");
-  printf("|\tid\t|\tnome\t\t|\tCPF\t\t|\ttelefone\t|\tmunicípio\t|     contas    |\n");
-  printf("|---------------|-----------------------|-----------------------|-----------------------|-----------------------|---------------|\n");
+  char borda[] = "|---------------|---------------------------------------|-----------------------|-----------------------|-------------------------------|---------------|";
+  printf("%s\n", borda);
+  printf("|\tid\t|\t\tnome\t\t\t|\t%7s\t\t|\ttelefone\t|\t\tmunicípio\t|     contas\t|\n", "CPF");
+  printf("%s\n", borda);
 
   /// Percorre a lista de clientes
   for(struct Clientes *aux = clientes->next; aux != NULL; aux = aux->next)
@@ -67,10 +65,10 @@ void filtroEstado(struct Clientes *clientes, struct Contas *contas, char *estado
     if (strcmp(aux->cliente->estado, estado) == 0)
     {
       /// Mostra o cliente no formato pré definido.
-      printf("|\t%d\t|\t%s\t|\t%s\t|\t%s\t|\t%s\t\t|\t%d\t|\n", aux->cliente->id, aux->cliente->nome, aux->cliente->cpf, aux->cliente->telefone, aux->cliente->municipio, qtdContas(contas, aux->cliente->id));
+      printf("|\t%d\t|\t%30s\t|%20s\t|%20s\t|\t%19s\t|\t%d\t|\n", aux->cliente->id, aux->cliente->nome, aux->cliente->cpf, aux->cliente->telefone, aux->cliente->municipio, qtdContas(contas, aux->cliente->id));
     }
   }
-  printf("|---------------|-----------------------|-----------------------|-----------------------|-----------------------|---------------|\n");
+  printf("%s\n", borda);
 }
 
 void getEstado(struct Clientes *clientes, struct Contas *contas)
@@ -171,7 +169,7 @@ void print_saldo(struct Contas *cabeca, struct Transacoes *transacoes, struct Cl
 
   /// Mostra o nome do cliente e o saldo total das contas.
   printf("|-------------------------------------------------------|\n");
-  printf("\t%s\t\t\tR$ %5.2lf \t\t\n", cliente->nome, getSaldoTotal(cabeca, transacoes, cliente->id));
+  printf("\t%s\t\t\tR$ %+5.2lf \t\t\n", cliente->nome, getSaldoTotal(cabeca, transacoes, cliente->id));
   printf("|-------------------------------------------------------|\n");
 
   /// Percorre a lista de contas.
@@ -183,7 +181,7 @@ void print_saldo(struct Contas *cabeca, struct Transacoes *transacoes, struct Cl
       /// Mostra a conta no formato padrão.
       print_conta(aux->conta);
       /// Mostra o saldo da conta atual.
-      printf("\tR$ %5.2lf\t|\n", getSaldo(transacoes, aux->conta->id));
+      printf("\tR$ %+5.2lf\t|\n", getSaldo(transacoes, aux->conta->id));
     }
   }
   printf("|-------------------------------------------------------|\n");
@@ -205,7 +203,7 @@ void append_sorted_cliente(struct Contas *contas, struct Transacoes *transacoes,
   for(; aux->next != NULL; aux = aux->next) /// Percorre a lista de clientes.
   {
     /// Se o saldo do cliente atual for maio que o saldo do cliente a ser inserido.
-    if (getSaldoTotal(contas, transacoes, aux->next->cliente->id) > getSaldoTotal(contas, transacoes, e->id))
+    if (getSaldoTotal(contas, transacoes, aux->next->cliente->id) < getSaldoTotal(contas, transacoes, e->id))
     {
       /// Sai do laço.
       break;
@@ -229,7 +227,7 @@ void print_cliente(struct Cliente *cliente, struct Contas *contas, struct Transa
     * Mostra o cliente recebido no formato específico.
   **/
 
-  printf("|\t%s\t\t|\t%s\t\t|\tR$ %.2lf \t|\n", cliente->nome, cliente->cpf, getSaldoTotal(contas, transacoes, cliente->id));
+  printf("|%25s\t|\t%s\t\t|\tR$ %+.2lf \t|\n", cliente->nome, cliente->cpf, getSaldoTotal(contas, transacoes, cliente->id));
 }
 
 void print_clientes(struct Clientes *clientes, struct Contas *contas, struct Transacoes *transacoes)
@@ -249,21 +247,25 @@ void listarSaldoCLientes(struct Clientes *clientes, struct Contas *contas, struc
   /**
     * Representa a listagem de todos os clientes com o saldo de cada cliente.
   **/
-
+  printf("Listando clientes.\n");
   struct Clientes *temp = malloc(sizeof(struct Clientes));
   temp->next = NULL;
+  int len_clientes = length_cliente(clientes);
+  printf("Total de Clientes: %d\n", len_clientes);
 
   char bordas[] = "|-------------------------------|-------------------------------|-----------------------|\n";
-
-  printf("%s",bordas);
 
   /// Percorre a lista de clientes.
   for (struct Clientes *aux = clientes->next; aux != NULL; aux = aux->next)
   {
-    /// Mostra os dados do cliente no formato especificado.
+    printf("\rCarregando %d -> %.2lf %%", length_cliente(temp), (100.0*length_cliente(temp))/len_clientes);
+    fflush(stdout);
     append_sorted_cliente(contas, transacoes, temp, aux->cliente);
     ///printf("|\t%s\t\t|\t%s\t\t|\tR$ %.2lf \t|\n", aux->cliente->nome, aux->cliente->cpf, getSaldoTotal(contas, transacoes, aux->cliente->id));
   }
+
+  /// Mostra os dados do cliente no formato especificado.
+  printf("\n%s",bordas);
   print_clientes(temp, contas, transacoes);
   printf("%s",bordas);
 }
@@ -291,9 +293,9 @@ void print_extrato(struct Cliente *cliente, struct Contas *contas, int numero_co
   /**
     * Representa a listagem das transações realizadas pelo cliente no mês atual.
   **/
-  printf("%d\n", dataAtual->tm_year);
+
   /// Borda da tabela à ser mostrada.
-  char borda[] = "|-----------------------|-----------------------|-----------------------|\n";
+  char borda[] = "|-----------------------|-------------------------------|-----------------------|\n";
 
   /// Lista de transações auxiliar.
   struct Transacoes *new = malloc(sizeof(struct Transacoes));
@@ -326,7 +328,7 @@ void print_extrato(struct Cliente *cliente, struct Contas *contas, int numero_co
 
   printf("%s", borda);
   /// Mostra o somatório do saldo das transações com data anteriore ao mês atual.
-  printf("|\tSaldo Anterior\t|\t\t\t|\t %.2lf\t\t|\n", getSaldoTotalMesAnterior(contas, transacoes, cliente->id, dataAtual));
+  printf("|\t%15s\t\t\t\t\t\t R$ %+10.2lf\t|\n", "Saldo Anterior", getSaldoTotalMesAnterior(contas, transacoes, cliente->id, dataAtual));
   printf("%s", borda);
 
   /// Mostra a lista de transações
@@ -334,7 +336,7 @@ void print_extrato(struct Cliente *cliente, struct Contas *contas, int numero_co
 
   /// Mostra o somatório do saldo das transações com data referênte ao mês atual.
   printf("%s", borda);
-  printf("|\tSaldo Atual\t|\t\t\t|\t %.2lf\t\t|\n", (getSaldoTotalPorMes(contas, transacoes, cliente->id, dataAtual->tm_mon) + getSaldoTotalMesAnterior(contas, transacoes, cliente->id, dataAtual) ));
+  printf("|\t%15s\t\t\t\t\t\t R$ %+10.2lf\t|\n", "Saldo Atual", (getSaldoTotalPorMes(contas, transacoes, cliente->id, dataAtual->tm_mon) + getSaldoTotalMesAnterior(contas, transacoes, cliente->id, dataAtual) ));
   printf("%s", borda);
 
   /// Limpa a lista de transações auxiliar criada.
@@ -407,20 +409,23 @@ void fatura_cartao(struct Cliente *cliente, struct Transacoes_cartao_credito *ca
   /// Abre o arquivo paraa impreção do extrato.
   FILE *extrato = fopen("extrato.txt", "w");
 
-  fprintf(extrato, "\n|---------------|-------------------------|-----------|\n");
+  /// Limpa o arquivo.
+  fflush(extrato);
+
+  fprintf(extrato, "\n|----------------|-----------------------------------|---------------|\n");
 
   /// Imprime o nome do cliente.
-  fprintf(extrato, "|                      %s                 |\n", cliente->nome);
+  fprintf(extrato, "                               %s                          \n", cliente->nome);
 
   /// Imprime a lista de transações.
   print_Transacoes_cartao_credito(extrato ,dividas, dataCliente);
 
   /// Imprime o valor mínimo à pagar por mês.
-  fprintf(extrato, "|  Valor Mínimo |                         | R$%7.2lf |\n", valorTotalFatura(dividas, dataCliente)*0.1);
+  fprintf(extrato, "|  Valor Mínimo  |                                   | R$ %10.2lf |\n", valorTotalFatura(dividas, dataCliente)*0.1);
 
   /// Imprime o valor máximo à pagar por mês.
-  fprintf(extrato, "|  Valor Máximo |                         | R$%7.2lf |\n", valorTotalFatura(dividas, dataCliente));
-  fprintf(extrato, "|---------------|-------------------------|-----------|\n");
+  fprintf(extrato, "|  Valor Máximo  |                                   | R$ %10.2lf |\n", valorTotalFatura(dividas, dataCliente));
+  fprintf(extrato, "|----------------|-----------------------------------|---------------|\n");
 
   /// Fecha o arquivo do extrato.
   fclose(extrato);
@@ -428,8 +433,8 @@ void fatura_cartao(struct Cliente *cliente, struct Transacoes_cartao_credito *ca
 
 int main()
 {
-    printf("%s\n\n", teste);
-  /// Abertura do arquivo.
+  system("./logo.sh");
+  // Abertura do arquivo.
   FILE *file = fopen("arquivo.txt", "r");
 
   /// Estruturas para armazenar os dados do arquivo.

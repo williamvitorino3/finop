@@ -4,7 +4,7 @@
 
 
 /// Guarda a animação do carregamento da leitura.
-char status[] = {'\\', '|', '/', '-'};
+char status[] = {'\\', '/'};
 
 /// Guarda a posição da amimação à ser mostrada.
 int pos = 0;
@@ -12,8 +12,7 @@ int pos = 0;
 void lendo(char str[])
 {
   char quebra[] = "                                   ";
-  printf("\rLendo %s %c %d %s", str, status[(pos%4)], pos, quebra);
-  pos++;
+  printf("\rLendo %s %c %d %s", str, status[(pos%2)], ++pos, quebra);
   fflush(stdout);
 }
 
@@ -44,7 +43,7 @@ void readCliente(FILE *file, struct Clientes *lista)
     append_cliente(lista, cliente);
     cliente = malloc(sizeof(struct Cliente));
   }
-
+  printf("\n");
 }
 
 void readConta(FILE *file, struct Contas *contas)
@@ -70,6 +69,7 @@ void readConta(FILE *file, struct Contas *contas)
     //printf("%d, %d, %d, %d;\n", conta->id, conta->numero_conta, conta->variacao, conta->id_cliente);
     conta = malloc(sizeof(struct Conta));
   }
+  printf("\n");
 }
 
 void readOperacoes(FILE *file, struct Operacoes *lista)
@@ -93,6 +93,7 @@ void readOperacoes(FILE *file, struct Operacoes *lista)
     //printf("%d, %s;\n", operacao->id, operacao->nome);
     operacao = malloc(sizeof(struct Operacao));
   }
+  printf("\n");
 }
 
 void readTransacao(FILE *file, struct Transacoes *lista)
@@ -120,10 +121,15 @@ void readTransacao(FILE *file, struct Transacoes *lista)
   {
     lendo("Transações");
     //printf("%d/%d/%d, %d, %d, %d, %.2lf;\n", transacao->data.tm_mday, transacao->data.tm_mon, transacao->data.tm_year, transacao->id_operacao, transacao->id_conta_origem, transacao->id_conta_destino, transacao->valor);
-    append_sorted_transacao(lista, transacao);
-    //insert_transacao(lista, transacao);
+
+    /// Insere as transações no início da lista.
+    insert_transacao(lista, transacao);
+    //append_sorted_transacao(lista, transacao);
+
+    /// Muda a referência da struct de leitura.
     transacao = malloc(sizeof(struct Transacao));
   }
+  printf("\n");
 }
 
 void readTransacoes_cartao_credito(FILE *file, struct Transacoes_cartao_credito *lista)
@@ -146,8 +152,9 @@ void readTransacoes_cartao_credito(FILE *file, struct Transacoes_cartao_credito 
   while (fscanf(file, "%d/%d/%d, %d, %[^,], %d, %lf;\n", &divida->data_compra.tm_mday, &divida->data_compra.tm_mon, &divida->data_compra.tm_year, &divida->id_conta, divida->descricao, &divida->qtde_parcelas, &divida->valor) == 7)
   {
     lendo("Transações de Cartão de Crédito");
-    append_Transacoes_cartao_credito(lista, divida);
+    insert_Transacoes_cartao_credito(lista, divida);
     //printf("%s, %d, %s, %d, %lf;\n", divida->data_compra, divida->id_conta, divida->descricao, divida->qtde_parcelas, divida->valor);
     divida = malloc(sizeof(struct Transacao_cartao_credito));
   }
+  printf("\n");
 }

@@ -177,7 +177,7 @@ void print_transacao(struct Transacao *transacao, struct Operacoes *operacoes)
   /**
     * Mostra os detalhes de uma transação.
   **/
-  printf("|\t%d/%d/%d\t|\t%s\t|\t%+.2lf\t\t|\n", transacao->data.tm_mday, transacao->data.tm_mon, transacao->data.tm_year, getOperacao(operacoes, transacao->id_operacao)->nome, transacao->valor);
+  printf("|\t%d/%d/%d\t|\t%15s\t\t|\t%+5.2lf\t\t|\n", transacao->data.tm_mday, transacao->data.tm_mon, transacao->data.tm_year, getOperacao(operacoes, transacao->id_operacao)->nome, transacao->valor);
 }
 
 void print_transacoes(struct Transacoes *cabeca, struct Operacoes *operacoes)

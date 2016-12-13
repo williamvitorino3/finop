@@ -29,7 +29,6 @@ void insert_cliente(struct Clientes *cabeca, struct Cliente *e)
 
 void append_cliente(struct Clientes *cabeca, struct Cliente *e)
 {
-
   /*
    * Inserção Clientes fim.
    */
@@ -45,6 +44,18 @@ void append_cliente(struct Clientes *cabeca, struct Cliente *e)
   ultimo->cliente = e;
 
   aux->next = ultimo;
+}
+
+int length_cliente(struct Clientes *cabeca)
+{
+    /// Contador de clientes.
+    int i = 0;
+
+    /// Conta a quantidade de clientes.
+    for(struct Clientes *aux = cabeca->next; aux != NULL; i++, aux = aux->next);
+
+    /// Retorna o tamanho da lista.
+    return i;
 }
 
 int find_cliente(struct Clientes *cabeca, char cpf[], int echo)
