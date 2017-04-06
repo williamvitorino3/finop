@@ -21,3 +21,11 @@ struct tm *inputMesAtual()
   setbuf(stdin, NULL);
   return hoje;
 }
+
+struct tm *castMesAtual(char *mes, char *ano)
+{
+  struct tm *hoje = malloc(sizeof(struct tm)); //estrutura para armazenar data e hora.
+  hoje->tm_mon = atoi(mes);
+  hoje->tm_year = atoi(ano);
+  return hoje;
+}
