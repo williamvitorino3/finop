@@ -1,9 +1,10 @@
-#include <stdio.h>
-#include <stdlib.h>
+/**
+  * Autor = William Vitorino.
+**/
 
-#include "default_tools.c"
+#include "tools.c"
 
-int project(struct Clientes *clientes, struct Contas *contas, struct Operacoes *operacoes, struct Transacoes *transacoes, struct Transacoes_cartao_credito *transacoes_cartao)
+int padrao(FILE *file, struct Clientes *clientes, struct Contas *contas, struct Operacoes *operacoes, struct Transacoes *transacoes, struct Transacoes_cartao_credito *transacoes_cartao)
 {
   while (1)
   {
@@ -11,7 +12,7 @@ int project(struct Clientes *clientes, struct Contas *contas, struct Operacoes *
     {
       case 1:
         /// Listagem de clientes por estado.
-        getEstado(stdout, clientes, contas);
+        getEstado(file, clientes, contas);
         break;
       case 2:
         /// Saldo atual do cliente.
@@ -42,7 +43,7 @@ int project(struct Clientes *clientes, struct Contas *contas, struct Operacoes *
 
 int main(int argc, char *argv[ ])
 {
-  //system("./logo.sh");
+  system("./logo.sh");
   // Abertura do arquivo.
   FILE *file = fopen("arquivo-menor.txt", "r");
 
@@ -60,6 +61,9 @@ int main(int argc, char *argv[ ])
   readTransacao(file, transacoes);
   readTransacoes_cartao_credito(file, transacoes_cartao);
 
+  printf("\rLeitura do arquivo concluída...                                    \n");
+
+  fclose(file);
 
   file = fopen("buffer.csv", "w");
 
@@ -71,8 +75,7 @@ int main(int argc, char *argv[ ])
     {
       if (argc-2 == 1)
       {
-        printf("Aqui\n");
-        writeEstado(file, clientes, contas, argv[2]);
+        filtroEstado(file, clientes, contas, argv[2]);
       }
     }else
     /// 2° Saldo de um cliente
@@ -80,7 +83,7 @@ int main(int argc, char *argv[ ])
     {
       if (argc-2 == 1)
       {
-        write_saldo(file, contas, transacoes, getCliente(clientes, argv[2]));
+        print_saldo(contas, transacoes, getCliente(clientes, argv[2]));
       }
     }else
     /// 3° Saldo de todos os clientes
@@ -88,7 +91,7 @@ int main(int argc, char *argv[ ])
     {
       if (argc-2 == 0)
       {
-        writeSaldoCLientes(file, clientes, contas, transacoes);
+        listarSaldoCLientes(clientes, contas, transacoes);
       }
     }else
     /// 4° Extrato do mês atual
@@ -96,13 +99,13 @@ int main(int argc, char *argv[ ])
     {
       if (argc-2 == 2)
       {
-        write_extrato(file, getCliente(clientes, argv[3]), contas, atoi(argv[2]), transacoes, operacoes, getMesAtual());
+        print_extrato(getCliente(clientes, argv[3]), contas, atoi(argv[2]), transacoes, operacoes, getMesAtual());
       }
     }else if (!strcmp(argv[1], "extrato"))
     {
       if (argc-2 == 4)
       {
-        write_extrato(file, getCliente(clientes, argv[3]), contas, atoi(argv[2]), transacoes, operacoes, castMesAtual(argv[4], argv[5]));
+        print_extrato(getCliente(clientes, argv[3]), contas, atoi(argv[2]), transacoes, operacoes, castMesAtual(argv[4], argv[5]));
       }
     }else if (!strcmp(argv[1], "fatura"))
     {
@@ -116,7 +119,6 @@ int main(int argc, char *argv[ ])
     return 0;
   }
 
-  fclose(file);
-
-  return project(clientes, contas, operacoes, transacoes, transacoes_cartao);
+  /// Menu de interação com o usuário padrão do projeto.
+  return padrao(stdout, clientes, contas, operacoes, transacoes, transacoes_cartao);
 }

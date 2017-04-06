@@ -1,0 +1,3 @@
+Criar janelas de comunicação.
+Armazenar a saída do finop em arquivo.
+Implementar a interação com a linha de comando no finop.
