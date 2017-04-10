@@ -1,4 +1,9 @@
 import tkinter as tk
+from os import system
+from tkinter import ttk
+import load
+from threading import _start_new_thread as thread
+#from tkinter.ttk import Progressbar
 
 
 class MostrarClientesPorEstado():
@@ -8,89 +13,75 @@ class MostrarClientesPorEstado():
     def __init__(self):
         ReadDataDialog()
         self.janela = tk.Tk()
+        self.tela = tk.Frame(self.janela, bd=5)
+        self.tela.configure(bg="#cccccc")
+        self.tela.pack()
+        _columns = ("ID", "Nome","CPF", "Telefone",
+                    "Município", "Contas")
+        self.list = ttk.Treeview(self.tela)
+        self.scroll = ttk.Scrollbar(self.tela, orient=tk.VERTICAL,
+                                    command=self.list.yview)
+        #self.list.insert('', 'end', text='Listbox', values=('15KB Yesterday mark'))
+        self.list["columns"] = _columns
+        self.list["show"] = "headings"
+        self.scroll.config(command=self.list.yview)
 
-        self.frame_id = tk.Frame(self.janela)
-        self.label_id = tk.Label(self.frame_id, text="ID")
-        self.listbox_id = tk.Listbox(self.frame_id, width=3)
-        self.label_id.pack()
-        self.listbox_id.pack()
+        self.list.column("ID", width=30)
+        self.list.heading("ID", text="ID")
+        self.list.column("Nome", width=200)
+        self.list.heading("Nome", text="Nome")
+        self.list.column("CPF", width=100)
+        self.list.heading("CPF", text="CPF")
+        self.list.column("Telefone", width=100)
+        self.list.heading("Telefone", text="Telefone")
+        self.list.column("Município", width=100)
+        self.list.heading("Município", text="Município")
+        self.list.column("Contas", width=50)
+        self.list.heading("Contas", text="Contas")
+        self.scroll.pack(side=tk.RIGHT, fill=tk.Y)
+        self.list.pack(side=tk.LEFT, fill=tk.X)
+        self.main_loop()
 
-        self.frame_nome = tk.Frame(self.janela)
-        self.label_nome = tk.Label(self.frame_nome, text="Nome")
-        self.listbox_nome = tk.Listbox(self.frame_nome, width=20)
-        self.label_nome.pack()
-        self.listbox_nome.pack()
-
-        self.frame_cpf = tk.Frame(self.janela)
-        self.label_cpf = tk.Label(self.frame_cpf, text="CPF")
-        self.listbox_cpf = tk.Listbox(self.frame_cpf, width=15)
-        self.label_cpf.pack()
-        self.listbox_cpf.pack()
-
-        self.frame_fone = tk.Frame(self.janela)
-        self.label_fone = tk.Label(self.frame_fone, text="Telefone")
-        self.listbox_fone = tk.Listbox(self.frame_fone, width=15)
-        self.label_fone.pack()
-        self.listbox_fone.pack()
-
-        self.frame_municipio = tk.Frame(self.janela)
-        self.label_municipio = tk.Label(self.frame_municipio, text="Município")
-        self.listbox_municipio = tk.Listbox(self.frame_municipio, width=15)
-        self.label_municipio.pack()
-        self.listbox_municipio.pack()
-
-        self.frame_contas = tk.Frame(self.janela)
-        self.label_contas = tk.Label(self.frame_contas, text="Contas")
-        self.listbox_contas = tk.Listbox(self.frame_contas, width=3)
-        self.label_contas.pack()
-        self.listbox_contas.pack()
-
-        self.frame_id.pack(side=tk.LEFT)
-        self.frame_nome.pack(side=tk.LEFT)
-        self.frame_cpf.pack(side=tk.LEFT)
-        self.frame_fone.pack(side=tk.LEFT)
-        self.frame_municipio.pack(side=tk.LEFT)
-        self.frame_contas.pack(side=tk.LEFT)
-        self.janela.mainloop()
-
-        self.ler_dados("~/IFCE/S3/LP1/finop")
 
     def ler_dados(self, src):
         """
         Lê os dados do buffer.
         """
-        file = open("buffer.csv", 'r')
-        print(file.readlines())
-        """
-        for linha in file.readlines():
-            dados = dados.split(", ")
-            self.listbox_id.insert(tk.END, dados[0])
-            self.listbox_nome.insert(tk.END, dados[1])
-            self.listbox_cpf.insert(tk.END, dados[2])
-            self.listbox_fone.insert(tk.END, dados[3])
-            self.listbox_municipio.insert(tk.END, dados[4])
-            self.listbox_contas.insert(tk.END, dados[5])
-        """
+        file = open("../buffer.csv", 'r')
+
+        for linhas in file.readlines():
+            for linha in linhas.rstrip("\n").splitlines():
+                dados = linha.split(",")
+                self.list.insert('', 'end', values=(dados))
         file.close()
+
+    def main_loop(self):
+        self.ler_dados("~/IFCE/S3/LP1/finop")
+        self.janela.wait_window()
 
 
 class ReadDataDialog():
-    def __init__(self):
+    def __init__(self, bg="#bbbbbb"):
         self.top = tk.Tk()
-        self.output = tk.Label(self.top, text="Estado")
+        #self.load = LoadBar(self.top)
+        self.top.configure(bg=bg, bd=5)
+        self.output = tk.Label(self.top, bg=bg,
+                               text="Estado")
         self.output.pack()
 
         self.input_estado = tk.Entry(self.top)
+        self.input_estado.focus_set()
         self.input_estado.pack()
 
-        self.send_button = tk.Button(self.top, text="Enviar", command=self._enviar)
+        self.send_button = tk.Button(self.top, bg="#000099",
+            fg="white", text="Enviar", command=self._enviar)
         self.send_button.pack()
 
         self.main_loop()
 
     def _enviar(self):
-        with open("buffer.txt", 'w') as bff:
-            bff.write(self.input_estado.get().upper())
+        opcao = self.input_estado.get().upper()
+        system("cd .. && ./finop clientes_estado {0}".format(opcao))
         self.top.destroy()
 
     def main_loop(self):
@@ -98,6 +89,3 @@ class ReadDataDialog():
 
 def main():
     MostrarClientesPorEstado()
-
-if __name__ == '__main__':
-    main()

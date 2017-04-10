@@ -104,7 +104,7 @@ double getSaldo(struct Transacoes *cabeca, int id_conta)
   return saldo;
 }
 
-double getSaldoMensal(struct Transacoes *cabeca, int id_conta, int mes_atual)
+double getSaldoMensal(struct Transacoes *cabeca, int id_conta, int mes, int ano)
 {
   /**
     * Calcula o saldo acumulado das transações referêntes à conta.
@@ -117,7 +117,7 @@ double getSaldoMensal(struct Transacoes *cabeca, int id_conta, int mes_atual)
   for(struct Transacoes *aux = cabeca->next; aux != NULL; aux = aux->next)
   {
     /* Verifica se o més corresponde ao passado por paramentro. */
-    if (aux->transacao->data.tm_mon == mes_atual)
+    if (aux->transacao->data.tm_mon == mes)
     {
       /* Verifica se a conta corresponde à conta origem da transação. */
       if(aux->transacao->id_conta_origem == id_conta)
@@ -151,7 +151,7 @@ double getSaldoMesAnterior(struct Transacoes *cabeca, int id_conta, struct tm *d
   for(struct Transacoes *aux = cabeca->next; aux != NULL; aux = aux->next)
   {
     /* Verifica se o mês é menor ou igual ao passado por paramentro. && aux->transacao->data.tm_year <= data_limite->tm_year*/
-    if (aux->transacao->data.tm_mon < data_limite->tm_mon)
+    if ((aux->transacao->data.tm_mon+(aux->transacao->data.tm_year-1)*12) < (data_limite->tm_mon+(data_limite->tm_year-1)*12))
     {
       /* Verifica se a conta corresponde à conta origem da transação. */
       if(aux->transacao->id_conta_origem == id_conta)

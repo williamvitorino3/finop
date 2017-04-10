@@ -131,8 +131,9 @@ void write_extrato(FILE *file, struct Cliente *cliente, struct Contas *contas, i
       {
         /// Verifica se o id da conta bate com o id de origem ou de destino da
         /// transacao e se a transação está na data prevista.
-        if (lista->transacao->data.tm_mon == dataAtual->tm_mon && (lista->transacao->id_conta_origem == aux->conta->id || lista->transacao->id_conta_destino == aux->conta->id))
-        {
+        if (lista->transacao->data.tm_year == dataAtual->tm_year && (lista->transacao->id_conta_origem == aux->conta->id || lista->transacao->id_conta_destino == aux->conta->id))
+        {/// && lista->transacao->data.tm_mon == dataAtual->tm_mon
+          printf("%d, %d", lista->transacao->data.tm_year, dataAtual->tm_year);
           /// Verifica se à necessidade de inversão do sinal do valor da transação.
           if(lista->transacao->id_conta_origem == aux->conta->id)
             /// Adiciona na lista uma cópia da transação com o sinal do valor negativo.

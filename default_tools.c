@@ -84,7 +84,7 @@ void getEstado(FILE *file, struct Clientes *clientes, struct Contas *contas)
   filtroEstado(file, clientes, contas, estado);
 }
 
-double getSaldoTotalPorMes(struct Contas *cabeca, struct Transacoes *transacoes, int id_cliente, int mes_atual)
+double getSaldoTotalPorMes(struct Contas *cabeca, struct Transacoes *transacoes, int id_cliente, int mes_atual, int ano_atual)
 {
   /**
     * Calcula o saldo total do cliente pelo mês atual.
@@ -100,7 +100,7 @@ double getSaldoTotalPorMes(struct Contas *cabeca, struct Transacoes *transacoes,
     if (aux->conta->id_cliente == id_cliente)
     {
       /// Adiciona o saldo da conta ao somatório do saldo das contas.
-      saldo += getSaldoMensal(transacoes, aux->conta->id, mes_atual);
+      saldo += getSaldoMensal(transacoes, aux->conta->id, mes_atual, ano_atual);
     }
   }
 
@@ -284,6 +284,47 @@ struct Transacao *negative(struct Transacao *origem)
   return destino;
 }
 
+double saldo(struct Transacoes *cabeca)
+{
+  /**
+    * Calcula o saldo acumulado das transações.
+  **/
+
+  /* Variável que guarda o saldo acumulado. */
+  double saldo = 0.0;
+  /* Percorre a lista de Transações. */
+  for(struct Transacoes *aux = cabeca->next; aux != NULL; aux = aux->next)
+  {
+      /* Soma o valor do saldo acumulado. */
+      saldo += aux->transacao->valor;
+  }
+
+  /* Retorna o saldo acumulado. */
+  return saldo;
+}
+
+double saldoAterior(struct Transacoes *cabeca, struct tm *data)
+{
+  /**
+    * Calcula o saldo acumulado das transações.
+  **/
+
+  /* Variável que guarda o saldo acumulado. */
+  double saldo = 0.0;
+  /* Percorre a lista de Transações. */
+  for(struct Transacoes *aux = cabeca->next; aux != NULL; aux = aux->next)
+  {
+    if (((cabeca->transacao->data.tm_year-1)*12 + cabeca->transacao->data.tm_mon) > ((data->tm_year-1)*12 + data->tm_mon))
+    {
+      /* Soma o valor do saldo acumulado. */
+      saldo += aux->transacao->valor;
+    }
+  }
+
+  /* Retorna o saldo acumulado. */
+  return saldo;
+}
+
 void print_extrato(struct Cliente *cliente, struct Contas *contas, int numero_conta, struct Transacoes *transacoes, struct Operacoes *operacoes, struct tm *dataAtual)
 {
   /**
@@ -308,7 +349,7 @@ void print_extrato(struct Cliente *cliente, struct Contas *contas, int numero_co
       {
         /// Verifica se o id da conta bate com o id de origem ou de destino da
         /// transacao e se a transação está na data prevista.
-        if (lista->transacao->data.tm_mon == dataAtual->tm_mon && (lista->transacao->id_conta_origem == aux->conta->id || lista->transacao->id_conta_destino == aux->conta->id))
+        if (lista->transacao->data.tm_year == dataAtual->tm_year && lista->transacao->data.tm_mon == dataAtual->tm_mon && (lista->transacao->id_conta_origem == aux->conta->id || lista->transacao->id_conta_destino == aux->conta->id))
         {
           /// Verifica se à necessidade de inversão do sinal do valor da transação.
           if(lista->transacao->id_conta_origem == aux->conta->id)
@@ -332,7 +373,7 @@ void print_extrato(struct Cliente *cliente, struct Contas *contas, int numero_co
 
   /// Mostra o somatório do saldo das transações com data referênte ao mês atual.
   printf("%s", borda);
-  printf("|\t%15s\t\t\t\t\t\t R$ %+10.2lf\t|\n", "Saldo Atual", (getSaldoTotalPorMes(contas, transacoes, cliente->id, dataAtual->tm_mon) + getSaldoTotalMesAnterior(contas, transacoes, cliente->id, dataAtual) ));
+  printf("|\t%15s\t\t\t\t\t\t R$ %+10.2lf\t|\n", "Saldo Atual", (saldo(new) + getSaldoTotalMesAnterior(contas, transacoes, cliente->id, dataAtual) ));
   printf("%s", borda);
 
   /// Limpa a lista de transações auxiliar criada.
@@ -500,7 +541,7 @@ void write_clientes(FILE *file, struct Clientes *clientes, struct Contas *contas
   }
 }
 
-void writeSaldoCLientes(FILE *file, struct Clientes *clientes, struct Contas *contas, struct Transacoes *transacoes)
+void writeSaldoClientes(FILE *file, struct Clientes *clientes, struct Contas *contas, struct Transacoes *transacoes)
 {
   /**
     * Representa a listagem de todos os clientes com o saldo de cada cliente.
@@ -554,7 +595,7 @@ void write_extrato(FILE *file, struct Cliente *cliente, struct Contas *contas, i
       {
         /// Verifica se o id da conta bate com o id de origem ou de destino da
         /// transacao e se a transação está na data prevista.
-        if (lista->transacao->data.tm_mon == dataAtual->tm_mon && (lista->transacao->id_conta_origem == aux->conta->id || lista->transacao->id_conta_destino == aux->conta->id))
+        if (lista->transacao->data.tm_year == dataAtual->tm_year && lista->transacao->data.tm_mon == dataAtual->tm_mon && (lista->transacao->id_conta_origem == aux->conta->id || lista->transacao->id_conta_destino == aux->conta->id))
         {
           /// Verifica se à necessidade de inversão do sinal do valor da transação.
           if(lista->transacao->id_conta_origem == aux->conta->id)
@@ -575,8 +616,8 @@ void write_extrato(FILE *file, struct Cliente *cliente, struct Contas *contas, i
   write_transacoes(file, new, operacoes);
 
   /// Mostra o somatório do saldo das transações com data referênte ao mês atual.
-  fprintf(file, "%s, R$ %+.2lf\n", "Saldo Atual", (getSaldoTotalPorMes(contas, transacoes, cliente->id, dataAtual->tm_mon) + getSaldoTotalMesAnterior(contas, transacoes, cliente->id, dataAtual) ));
-
+  fprintf(file, "%s R$ %+.2lf\n", "Saldo Atual", (saldo(new) + getSaldoTotalMesAnterior(contas, transacoes, cliente->id, dataAtual) ));
+  
   /// Limpa a lista de transações auxiliar criada.
   garbageColector(new);
 }

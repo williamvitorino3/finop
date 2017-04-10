@@ -88,7 +88,7 @@ int main(int argc, char *argv[ ])
     {
       if (argc-2 == 0)
       {
-        writeSaldoCLientes(file, clientes, contas, transacoes);
+        writeSaldoClientes(file, clientes, contas, transacoes);
       }
     }else
     /// 4° Extrato do mês atual
@@ -98,8 +98,11 @@ int main(int argc, char *argv[ ])
       {
         write_extrato(file, getCliente(clientes, argv[3]), contas, atoi(argv[2]), transacoes, operacoes, getMesAtual());
       }
-    }else if (!strcmp(argv[1], "extrato"))
+    }else
+    /// 5° Extato do mes específico.
+    if (!strcmp(argv[1], "extrato"))
     {
+      printf("extrato\n");
       if (argc-2 == 4)
       {
         write_extrato(file, getCliente(clientes, argv[3]), contas, atoi(argv[2]), transacoes, operacoes, castMesAtual(argv[4], argv[5]));
@@ -110,7 +113,7 @@ int main(int argc, char *argv[ ])
       {
         fatura_cartao(getCliente(clientes, argv[2]), transacoes_cartao, contas, castMesAtual(argv[3], argv[4]));
       }
-      printf("fatura\n");
+      printf("Fatura Impressa!\n");
     }
     fclose(file);
     return 0;
