@@ -16,8 +16,7 @@ class ListarClientes():
         self.janela = tk.Tk()
         self.tela = tk.Frame(self.janela, bd=5)
         self.list = ttk.Treeview(self.tela)
-        self.scroll = ttk.Scrollbar(self.tela, orient=tk.VERTICAL,
-                                    command=self.list.yview)
+        self.scroll = ttk.Scrollbar(self.tela, orient=tk.VERTICAL, command=self.list.yview)
 
         self._main()
 
@@ -26,6 +25,7 @@ class ListarClientes():
         Método principal da classe.
         """
         self.tela.configure(bg="#cccccc")
+        self.janela.resizable(False, False)
         self.tela.pack()
         _columns = ("Nome","CPF", "Saldo")
         self.list["columns"] = _columns

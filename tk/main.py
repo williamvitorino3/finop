@@ -18,5 +18,6 @@ def full_screan(janela):
 win = tk.Tk()
 #win.geometry(full_screan(win))
 win.title("tkFinop")
-win.configure(background='black')
+win.resizable(False, False)
+win.configure(background='black', bd=5)
 Principal(win).run()

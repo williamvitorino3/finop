@@ -12,6 +12,7 @@ class ExtratoCliente():
     def __init__(self):
         ReadDataDialog()
         self.janela = tk.Tk()
+        self.janela.resizable(False, False)
         self.bg = "#cccccc"
         self.tela = tk.Frame(self.janela, bd=5)
         self.saldos = tk.Frame(self.janela)
@@ -103,6 +104,7 @@ class ReadDataDialog():
     
     def main(self):
         self.top.configure(bg=self.bg, bd=5)
+        self.top.title("Opções")
         self.entryes_frame.pack()
         self.output_conta.pack()
         self.input_conta.focus_set()

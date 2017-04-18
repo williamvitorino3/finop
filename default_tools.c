@@ -17,6 +17,7 @@ int getOpcao()
   int op;
   printf("\nEscolha uma opção:\n[ 1 ] - Listar clientes por estado.\t[ 2 ] - Saldo atual do cliente.\n[ 3 ] - Listar saldo dos cliente\t[ 4 ] - Extrato mês atual\n[ 5 ] - Extrato mês anterior\t\t[ 6 ] - Fatura do cartão de crédito\n[ 0 ] - Sair\n>>> ");
   scanf("%d", &op);
+  fflush(stdout);
   return (op >= 0 && op<= 6 ? op : getOpcao());
 }
 
@@ -616,7 +617,7 @@ void write_extrato(FILE *file, struct Cliente *cliente, struct Contas *contas, i
   write_transacoes(file, new, operacoes);
 
   /// Mostra o somatório do saldo das transações com data referênte ao mês atual.
-  fprintf(file, "%s R$ %+.2lf\n", "Saldo Atual", (saldo(new) + getSaldoTotalMesAnterior(contas, transacoes, cliente->id, dataAtual) ));
+  fprintf(file, "%s, R$ %+.2lf\n", "Saldo Atual", (saldo(new) + getSaldoTotalMesAnterior(contas, transacoes, cliente->id, dataAtual) ));
   
   /// Limpa a lista de transações auxiliar criada.
   garbageColector(new);

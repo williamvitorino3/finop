@@ -10,6 +10,7 @@ class ExtratoCliente():
     def __init__(self):
         ReadDataDialog()
         self.janela = tk.Tk()
+        self.janela.resizable(False, False)
         self.bg = "#cccccc"
         self.tela = tk.Frame(self.janela, bd=5)
         self.saldos = tk.Frame(self.janela)
@@ -43,7 +44,7 @@ class ExtratoCliente():
         self.list.column("Valor", width=100)
         self.list.heading("Valor", text="Valor")
         self.scroll.pack(side=tk.RIGHT, fill=tk.Y)
-        self.list.pack(side=tk.LEFT, fill=tk.X)
+        self.list.pack(side=tk.LEFT, fill=tk.Y)
         self.main_loop()
 
     def getSaldoAnterior(self, src):
@@ -76,24 +77,19 @@ class ExtratoCliente():
 class ReadDataDialog():
     def __init__(self, bg="#bbbbbb"):
         self.top = tk.Tk()
-        self.top.configure(bg=bg, bd=5)
+        self.top.resizable(False, False)
+        self.bg = bg
         self.output_conta = tk.Label(self.top, bg=bg,
                                text="Conta")
-        self.output_conta.pack()
 
         self.input_conta = tk.Entry(self.top, justify=tk.CENTER)
-        self.input_conta.focus_set()
-        self.input_conta.pack()
 
         self.output_cpf = tk.Label(self.top, bg=bg,
                                text="CPF")
-        self.output_cpf.pack()
         self.input_cpf = tk.Entry(self.top, justify=tk.CENTER)
-        self.input_cpf.pack()
 
         self.send_button = tk.Button(self.top, bg="#000099",
             fg="white", text="Enviar", command=self._enviar)
-        self.send_button.pack()
 
         self.main_loop()
 
@@ -103,7 +99,16 @@ class ReadDataDialog():
         self.top.destroy()
     
     def main_loop(self):
-        self.top.mainloop()
+        self.top.configure(bg=self.bg, bd=5)
+        self.top.title("Opções")
+        self.output_conta.pack()
+        self.input_conta.focus_set()
+        self.input_conta.pack()
+        self.output_cpf.pack()
+        self.input_cpf.pack()
+        self.send_button.pack()
+
+        self.top.wait_window()
 
 def main():
     ExtratoCliente()
